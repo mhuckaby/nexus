@@ -52,6 +52,7 @@ import org.sonatype.nexus.proxy.events.NexusInitializedEvent;
 import org.sonatype.nexus.proxy.events.NexusStartedEvent;
 import org.sonatype.nexus.proxy.events.NexusStoppedEvent;
 import org.sonatype.nexus.proxy.events.NexusStoppingEvent;
+import org.sonatype.nexus.proxy.http.HttpProxyService;
 import org.sonatype.nexus.proxy.item.StorageItem;
 import org.sonatype.nexus.proxy.item.StorageLinkItem;
 import org.sonatype.nexus.proxy.maven.MavenRepository;
@@ -143,6 +144,10 @@ public class DefaultNexus
 
     @Requirement
     private ArtifactPackagingMapper artifactPackagingMapper;
+
+    @Requirement
+    @SuppressWarnings( "unused" )
+    private HttpProxyService httpProxyService;
 
     private static final String MAPPING_PROPERTIES_FILE = "packaging2extension-mapping.properties";
 
@@ -285,11 +290,8 @@ public class DefaultNexus
     public void reindexAllRepositories( String path, boolean fullReindex )
         throws IOException
     {
-        this.applicationEventMulticaster.notifyEventListeners( new ReindexRepositoriesEvent(
-                                                                                             this,
-                                                                                             new ReindexRepositoriesRequest(
-                                                                                                                             path,
-                                                                                                                             fullReindex ) ) );
+        this.applicationEventMulticaster.notifyEventListeners( new ReindexRepositoriesEvent( this,
+            new ReindexRepositoriesRequest( path, fullReindex ) ) );
     }
 
     @Deprecated
@@ -366,9 +368,9 @@ public class DefaultNexus
         sysInfoLog.append( "-------------------------------------------------\n" );
         sysInfoLog.append( "\n" );
         sysInfoLog.append( "Initializing Nexus (" );
-        if( !StringUtils.isEmpty( applicationStatusSource.getSystemStatus().getEditionLong() ) )
+        if ( !StringUtils.isEmpty( applicationStatusSource.getSystemStatus().getEditionLong() ) )
         {
-            sysInfoLog.append( applicationStatusSource.getSystemStatus().getEditionLong() ).append( "), ");
+            sysInfoLog.append( applicationStatusSource.getSystemStatus().getEditionLong() ).append( "), " );
         }
         sysInfoLog.append( "Version " ).append( applicationStatusSource.getSystemStatus().getVersion() ).append( "\n" );
         sysInfoLog.append( "\n" );
@@ -377,7 +379,7 @@ public class DefaultNexus
         getLogger().info( sysInfoLog.toString() );
 
         artifactPackagingMapper.setPropertiesFile( new File( nexusConfiguration.getConfigurationDirectory(),
-                                                             MAPPING_PROPERTIES_FILE ) );
+            MAPPING_PROPERTIES_FILE ) );
 
         // EventInspectorHost
         applicationEventMulticaster.addEventListener( eventInspectorHost );
@@ -456,7 +458,7 @@ public class DefaultNexus
 
             // notify about start
             applicationEventMulticaster.notifyEventListeners( new ConfigurationChangeEvent( nexusConfiguration, null,
-                                                                                            null ) );
+                null ) );
 
             applicationStatusSource.getSystemStatus().setLastConfigChange( new Date() );
 
@@ -464,7 +466,8 @@ public class DefaultNexus
 
             applicationStatusSource.getSystemStatus().setInstanceUpgraded( nexusConfiguration.isInstanceUpgraded() );
 
-            applicationStatusSource.getSystemStatus().setConfigurationUpgraded( nexusConfiguration.isConfigurationUpgraded() );
+            applicationStatusSource.getSystemStatus().setConfigurationUpgraded(
+                nexusConfiguration.isConfigurationUpgraded() );
 
             if ( applicationStatusSource.getSystemStatus().isFirstStart() )
             {
@@ -487,14 +490,14 @@ public class DefaultNexus
 
             applicationStatusSource.getSystemStatus().setStartedAt( new Date() );
 
-            getLogger().info( "Nexus Work Directory : "
-                                  + nexusConfiguration.getWorkingDirectory().getAbsolutePath().toString() );
+            getLogger().info(
+                "Nexus Work Directory : " + nexusConfiguration.getWorkingDirectory().getAbsolutePath().toString() );
 
-            getLogger().info( "Started Nexus (version " + getSystemStatus().getVersion()
-                                  + (StringUtils.isEmpty( getSystemStatus().getEditionLong() )
-                                        ? ""
-                                        : " " + getSystemStatus().getEditionLong() )
-                                    + ")" );
+            getLogger().info(
+                "Started Nexus (version "
+                    + getSystemStatus().getVersion()
+                    + ( StringUtils.isEmpty( getSystemStatus().getEditionLong() ) ? "" : " "
+                        + getSystemStatus().getEditionLong() ) + ")" );
 
             applicationEventMulticaster.notifyEventListeners( new NexusStartedEvent( this ) );
         }
@@ -527,7 +530,7 @@ public class DefaultNexus
 
         // Due to no dependency mechanism in NX for components, we need to fire off a hint about shutdown first
         applicationEventMulticaster.notifyEventListeners( new NexusStoppingEvent( this ) );
-        
+
         nexusScheduler.shutdown();
 
         applicationEventMulticaster.notifyEventListeners( new NexusStoppedEvent( this ) );
@@ -537,15 +540,15 @@ public class DefaultNexus
         securitySystem.stop();
 
         applicationStatusSource.getSystemStatus().setState( SystemState.STOPPED );
-        
+
         // Now a cleanup, to kill dangling thread of HttpClients
         CustomMultiThreadedHttpConnectionManager.shutdownAll();
 
-        getLogger().info( "Stopped Nexus (version " + getSystemStatus().getVersion()
-                              + (StringUtils.isEmpty( getSystemStatus().getEditionLong() )
-                                    ? ""
-                                    : " " + getSystemStatus().getEditionLong() )
-                              + ")" );
+        getLogger().info(
+            "Stopped Nexus (version "
+                + getSystemStatus().getVersion()
+                + ( StringUtils.isEmpty( getSystemStatus().getEditionLong() ) ? "" : " "
+                    + getSystemStatus().getEditionLong() ) + ")" );
     }
 
     private void synchronizeShadowsAtStartup()

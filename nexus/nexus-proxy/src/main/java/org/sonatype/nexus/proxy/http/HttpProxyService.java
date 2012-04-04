@@ -37,4 +37,10 @@ public interface HttpProxyService
     HttpProxyPolicy getHttpProxyPolicy();
 
     void setHttpProxyPolicy( HttpProxyPolicy httpProxyPolicy );
+    
+    // ==
+    
+    void start();
+    
+    void stop();
 }

@@ -22,7 +22,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.configuration.ConfigurationException;
 import org.sonatype.nexus.configuration.AbstractConfigurable;
@@ -42,7 +41,7 @@ import org.sonatype.nexus.threads.NexusThreadFactory;
 @Component( role = HttpProxyService.class )
 public class DefaultHttpProxyService
     extends AbstractConfigurable
-    implements HttpProxyService, Startable
+    implements HttpProxyService
 {
     public static final int DEFAULT_TIMEOUT = 20 * 1000;
 
