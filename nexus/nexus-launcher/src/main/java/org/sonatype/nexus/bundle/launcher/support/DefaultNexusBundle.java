@@ -27,9 +27,7 @@ import javax.inject.Named;
 
 import org.sonatype.nexus.bundle.launcher.NexusBundle;
 import org.sonatype.nexus.bundle.launcher.NexusBundleConfiguration;
-import org.sonatype.sisu.bl.support.DefaultWebBundle;
-import org.sonatype.sisu.bl.support.port.PortReservationService;
-import org.sonatype.sisu.filetasks.FileTaskBuilder;
+import org.sonatype.sisu.bl.DefaultBundle;
 import org.sonatype.sisu.jsw.exec.JSWExec;
 import org.sonatype.sisu.jsw.exec.JSWExecFactory;
 import org.sonatype.sisu.jsw.monitor.CommandMonitorTalker;
@@ -44,7 +42,7 @@ import org.sonatype.sisu.jsw.util.JSWConfig;
  */
 @Named
 public class DefaultNexusBundle
-    extends DefaultWebBundle<NexusBundle, NexusBundleConfiguration>
+    extends DefaultBundle<NexusBundle, NexusBundleConfiguration>
     implements NexusBundle
 {
 
@@ -61,18 +59,6 @@ public class DefaultNexusBundle
     private JSWExec jswExec;
 
     /**
-     * File task builder.
-     * Cannot be null.
-     */
-    private final FileTaskBuilder fileTaskBuilder;
-
-    /**
-     * Used to reserve custom overlord ports.
-     * Cannot be null.
-     */
-    private final PortReservationService portService;
-
-    /**
      * Port on which Nexus JSW Monitor is running. 0 (zero) if application is not running.
      */
     private int jswMonitorPort;
@@ -87,21 +73,13 @@ public class DefaultNexusBundle
      */
     private KeepAliveThread keepAliveThread;
 
-    /**
-     * Constructor.
-     *
-     * @param jswExecFactory JSW executor factory.
-     * @since 2.0
-     */
+    private File workDirectory;
+
     @Inject
-    public DefaultNexusBundle( final JSWExecFactory jswExecFactory,
-                               final FileTaskBuilder fileTaskBuilder,
-                               final PortReservationService portService )
+    public DefaultNexusBundle( final JSWExecFactory jswExecFactory )
     {
         super( "nexus" );
-        this.fileTaskBuilder = fileTaskBuilder;
         this.jswExecFactory = checkNotNull( jswExecFactory );
-        this.portService = checkNotNull( portService );
     }
 
     /**
@@ -113,16 +91,15 @@ public class DefaultNexusBundle
      * - installs plugins.
      * <p/>
      * {@inheritDoc}
-     *
-     * @since 2.0
      */
     @Override
-    protected void configure()
-    {
+    protected void configure() throws Exception {
         super.configure();
 
-        jswMonitorPort = portService.reservePort();
-        jswKeepAlivePort = portService.reservePort();
+        // FIXME: Allow bundle to configure these
+
+        jswMonitorPort = getPortReservationService().reservePort();
+        jswKeepAlivePort = getPortReservationService().reservePort();
 
         configureJSW();
         installPlugins();
@@ -141,12 +118,12 @@ public class DefaultNexusBundle
 
         if ( jswMonitorPort > 0 )
         {
-            portService.cancelPort( jswMonitorPort );
+            getPortReservationService().cancelPort(jswMonitorPort);
             jswMonitorPort = 0;
         }
         if ( jswKeepAlivePort > 0 )
         {
-            portService.cancelPort( jswKeepAlivePort );
+            getPortReservationService().cancelPort(jswKeepAlivePort);
             jswKeepAlivePort = 0;
         }
     }
@@ -164,7 +141,7 @@ public class DefaultNexusBundle
         CommandMonitorTalker.installStopShutdownHook( jswMonitorPort );
         try
         {
-            keepAliveThread = new KeepAliveThread( jswKeepAlivePort, new Slf4jLogProxy( log() ) );
+            keepAliveThread = new KeepAliveThread( jswKeepAlivePort, new Slf4jLogProxy( log ) );
             keepAliveThread.start();
         }
         catch ( IOException e )
@@ -231,27 +208,29 @@ public class DefaultNexusBundle
     }
 
     /**
-     * Install Nexus plugins in {@code sonatype-work/nexus/plugin-repository}.
+     * Install Nexus plugins into the work directories plugin-repository.
      */
     private void installPlugins()
     {
         NexusBundleConfiguration config = getConfiguration();
         List<File> plugins = config.getPlugins();
+        File pluginRepoDir = new File(getWorkDirectory(), "plugin-repository");
+
         for ( File plugin : plugins )
         {
             if ( plugin.isDirectory() )
             {
                 onDirectory( config.getTargetDirectory() ).apply(
-                    fileTaskBuilder.copy()
+                    getFileTasksBuilder().copy()
                         .directory( file( plugin ) )
-                        .to().directory( path( "sonatype-work/nexus/plugin-repository" ) )
+                        .to().directory( file(pluginRepoDir) )
                 );
             }
             else
             {
                 onDirectory( config.getTargetDirectory() ).apply(
-                    fileTaskBuilder.expand( file( plugin ) )
-                        .to().directory( path( "sonatype-work/nexus/plugin-repository" ) )
+                    getFileTasksBuilder().expand(file(plugin))
+                        .to().directory( file(pluginRepoDir) )
                 );
             }
         }
@@ -263,7 +242,7 @@ public class DefaultNexusBundle
     private void configureNexusPort()
     {
         onDirectory( getConfiguration().getTargetDirectory() ).apply(
-            fileTaskBuilder.properties( path( "nexus/conf/nexus.properties" ) )
+            getFileTasksBuilder().properties(path("conf/nexus.properties"))
                 .property( "application-port", String.valueOf( getPort() ) )
         );
     }
@@ -283,8 +262,8 @@ public class DefaultNexusBundle
         {
             NexusBundleConfiguration config = getConfiguration();
 
-            File jswConfigFile = new File( config.getTargetDirectory(), "nexus/bin/jsw/conf/wrapper.conf" );
-            File jswAddonConfigFile = new File( config.getTargetDirectory(), "nexus/conf/wrapper-override.conf" );
+            File jswConfigFile = new File( config.getTargetDirectory(), "bin/jsw/conf/wrapper.conf" );
+            File jswAddonConfigFile = new File( config.getTargetDirectory(), "conf/wrapper-override.conf" );
 
             JSWConfig jswConfig = new JSWConfig( jswConfigFile, jswAddonConfigFile );
             jswConfig.load();
@@ -328,7 +307,14 @@ public class DefaultNexusBundle
     @Override
     public File getWorkDirectory()
     {
-        return new File( getConfiguration().getTargetDirectory(), "sonatype-work/nexus" );
+        if (workDirectory == null) {
+            File dir = getConfiguration().getWorkDirectory();
+            if (dir == null) {
+                dir = new File( getConfiguration().getTargetDirectory(), "work" );
+            }
+            workDirectory = dir;
+        }
+        return workDirectory;
     }
 
 }

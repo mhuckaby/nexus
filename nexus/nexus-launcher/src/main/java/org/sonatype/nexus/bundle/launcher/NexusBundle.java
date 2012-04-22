@@ -14,7 +14,7 @@ package org.sonatype.nexus.bundle.launcher;
 
 import java.io.File;
 
-import org.sonatype.sisu.bl.WebBundle;
+import org.sonatype.sisu.bl.Bundle;
 
 /**
  * An Nexus bundle that can be created, started, stopped based on a provided configuration.
@@ -22,7 +22,7 @@ import org.sonatype.sisu.bl.WebBundle;
  * @since 2.0
  */
 public interface NexusBundle
-    extends WebBundle<NexusBundle, NexusBundleConfiguration>
+    extends Bundle<NexusBundle, NexusBundleConfiguration>
 {
 
     File getWorkDirectory();

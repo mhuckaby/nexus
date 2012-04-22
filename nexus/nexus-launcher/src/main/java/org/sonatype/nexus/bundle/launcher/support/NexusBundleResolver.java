@@ -13,7 +13,7 @@
 package org.sonatype.nexus.bundle.launcher.support;
 
 import org.sonatype.inject.Nullable;
-import org.sonatype.sisu.bl.support.resolver.MavenBridgedBundleResolver;
+import org.sonatype.sisu.bl.resolver.MavenBridgedBundleResolver;
 import org.sonatype.sisu.maven.bridge.MavenArtifactResolver;
 
 import javax.inject.Inject;

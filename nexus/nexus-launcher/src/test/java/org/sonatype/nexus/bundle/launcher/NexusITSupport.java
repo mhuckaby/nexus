@@ -16,7 +16,7 @@ import com.google.inject.Binder;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 import org.sonatype.nexus.bundle.launcher.support.NexusSpecific;
-import org.sonatype.sisu.bl.support.resolver.TargetDirectoryResolver;
+import org.sonatype.sisu.bl.resolver.TargetDirectoryResolver;
 import org.sonatype.sisu.litmus.testsupport.inject.InjectedTestSupport;
 import org.sonatype.sisu.maven.bridge.MavenArtifactResolver;
 

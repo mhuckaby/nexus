@@ -14,9 +14,9 @@ package org.sonatype.nexus.bundle.launcher.support;
 
 import org.sonatype.inject.Nullable;
 import org.sonatype.nexus.bundle.launcher.NexusBundleConfiguration;
-import org.sonatype.sisu.bl.support.DefaultBundleConfiguration;
-import org.sonatype.sisu.bl.support.resolver.BundleResolver;
-import org.sonatype.sisu.bl.support.resolver.TargetDirectoryResolver;
+import org.sonatype.sisu.bl.DefaultBundleConfiguration;
+import org.sonatype.sisu.bl.resolver.BundleResolver;
+import org.sonatype.sisu.bl.resolver.TargetDirectoryResolver;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -41,6 +41,8 @@ public class DefaultNexusBundleConfiguration
      */
     public static final String START_TIMEOUT = "NexusBundleConfiguration.startTimeout";
 
+    private File workDirectory;
+
     /**
      * List of Nexus plugins to be installed. Should never be null.
      */
@@ -55,6 +57,17 @@ public class DefaultNexusBundleConfiguration
     public DefaultNexusBundleConfiguration()
     {
         setPlugins();
+    }
+
+    @Override
+    public File getWorkDirectory() {
+        return workDirectory;
+    }
+
+    @Override
+    public NexusBundleConfiguration setWorkDirectory(File dir) {
+        this.workDirectory = dir;
+        return this;
     }
 
     /**
