@@ -1,17 +1,13 @@
 package org.sonatype.nexus.bootstrap;
 
 import org.eclipse.jetty.util.resource.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonatype.sisu.jetty.Jetty8;
-import org.tanukisoftware.wrapper.WrapperListener;
 import org.tanukisoftware.wrapper.WrapperManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
@@ -23,25 +19,11 @@ import static org.tanukisoftware.wrapper.WrapperManager.WRAPPER_CTRL_LOGOFF_EVEN
  * @since 2.1
  */
 public class Launcher
-    implements WrapperListener
+    extends WrapperListenerSupport
 {
-    private static final Logger log = LoggerFactory.getLogger(Launcher.class);
-
     private Jetty8 server;
 
     @Override
-    public Integer start(final String[] args) {
-        log.info("Starting with arguments: {}", Arrays.asList(args));
-
-        try {
-            return doStart(args);
-        }
-        catch (Exception e) {
-            log.error("Failed to start", e);
-            return 1; // exit
-        }
-    }
-
     protected Integer doStart(final String[] args) throws Exception {
         if (WrapperManager.isControlledByNativeWrapper()) {
             log.info("JVM ID: {}, JVM PID: {}, Wrapper PID: {}, User: {}", new Object[]{
@@ -136,36 +118,12 @@ public class Launcher
     }
 
     @Override
-    public int stop(final int code) {
-        log.info("Stopping with code: {}", code);
-
-        try {
-            return doStop(code);
-        }
-        catch (Exception e) {
-            log.error("Failed to stop cleanly", e);
-            return 1; // exit
-        }
-    }
-
-
     protected int doStop(final int code) throws Exception {
         server.stopJetty();
         return code;
     }
 
     @Override
-    public void controlEvent(final int code) {
-        log.info("Received control event: {}", code);
-
-        try {
-            doControlEvent(code);
-        }
-        catch (Exception e) {
-            log.error("Failed to handle control event[{}]", code, e);
-        }
-    }
-
     protected void doControlEvent(final int code) {
         if (WRAPPER_CTRL_LOGOFF_EVENT == code && WrapperManager.isLaunchedAsService()) {
             log.debug("Launched as a service; ignoring event: {}", code);
