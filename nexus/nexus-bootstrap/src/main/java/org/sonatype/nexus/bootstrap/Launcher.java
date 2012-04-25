@@ -41,7 +41,6 @@ public class Launcher
 
         maybeSetProperty("basedir", cwd.getAbsolutePath());
         maybeSetProperty("bundleBasedir", cwd.getAbsolutePath());
-        //maybeSetProperty("java.io.tmpdir", new File(cwd, "tmp").getAbsolutePath());
 
         loadProperties("default.properties", true);
         loadProperties("/nexus.properties", true);
@@ -63,25 +62,24 @@ public class Launcher
 
     protected void ensureTmpDirSanity() throws IOException {
         // Make sure that java.io.tmpdir points to a real directory
-        String tmp = System.getProperty("java.io.tmpdir");
-        if (tmp != null) {
-            File file = new File(tmp);
-            if (!file.exists()) {
-                if (file.mkdirs()) {
-                    log.info("Created tmp dir: {}", file);
-                }
+        String tmp = System.getProperty("java.io.tmpdir", "tmp");
+        File file = new File(tmp);
+        if (!file.exists()) {
+            if (file.mkdirs()) {
+                log.info("Created tmp dir: {}", file);
             }
-            else if (!file.isDirectory()) {
-                log.warn("Tmp dir is configured to a location which is not a directory: {}", file);
-            }
-
-            // Ensure we can actually create a new tmp file
-            file = File.createTempFile(getClass().getSimpleName(), ".tmp");
-            file.createNewFile();
-            File tmpDir = file.getCanonicalFile().getParentFile();
-            log.info("Temp directory: {}", tmpDir);
-            file.delete();
         }
+        else if (!file.isDirectory()) {
+            log.warn("Tmp dir is configured to a location which is not a directory: {}", file);
+        }
+
+        // Ensure we can actually create a new tmp file
+        file = File.createTempFile(getClass().getSimpleName(), ".tmp");
+        file.createNewFile();
+        File tmpDir = file.getCanonicalFile().getParentFile();
+        log.info("Temp directory: {}", tmpDir);
+        System.setProperty("java.io.tmpdir", tmpDir.getAbsolutePath());
+        file.delete();
     }
 
     protected void maybeEnableCommandMonitor() throws IOException {
