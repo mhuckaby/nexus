@@ -34,6 +34,19 @@ public class Launcher
             });
         }
 
+        File cwd = new File(".").getCanonicalFile();
+        log.info("Current directory: {}", cwd);
+
+        // TODO: Sort out how this shit works with appcontext
+
+        maybeSetProperty("basedir", cwd.getAbsolutePath());
+        maybeSetProperty("bundleBasedir", cwd.getAbsolutePath());
+        //maybeSetProperty("java.io.tmpdir", new File(cwd, "tmp").getAbsolutePath());
+
+        loadProperties("default.properties", true);
+        loadProperties("/nexus.properties", true);
+        loadProperties("/nexus-test.properties", false);
+
         if (args.length != 1) {
             log.error("Missing Jetty configuration file parameter");
             return 1; // exit
@@ -65,7 +78,8 @@ public class Launcher
             // Ensure we can actually create a new tmp file
             file = File.createTempFile(getClass().getSimpleName(), ".tmp");
             file.createNewFile();
-            log.debug("Tmp dir: {}", file.getCanonicalFile().getParent());
+            File tmpDir = file.getCanonicalFile().getParentFile();
+            log.info("Temp directory: {}", tmpDir);
             file.delete();
         }
     }
