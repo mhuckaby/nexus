@@ -31,28 +31,23 @@ public class CommandMonitorTalker
         this.port = port;
     }
 
-    public void send(final String command) {
+    public void send(final String command) throws Exception {
         if (command == null) {
             throw new NullPointerException();
         }
 
         log.debug("Sending command: {}", command);
 
+        Socket socket = new Socket();
+        socket.setSoTimeout(5000);
+        socket.connect(new InetSocketAddress(host, port));
         try {
-            Socket socket = new Socket();
-            socket.setSoTimeout(5000);
-            socket.connect(new InetSocketAddress(host, port));
-            try {
-                OutputStream output = socket.getOutputStream();
-                output.write(command.getBytes());
-                output.close();
-            }
-            finally {
-                socket.close();
-            }
+            OutputStream output = socket.getOutputStream();
+            output.write(command.getBytes());
+            output.close();
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        finally {
+            socket.close();
         }
     }
 }
