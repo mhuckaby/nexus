@@ -315,7 +315,7 @@
                         <aggregations>
                             <aggregation>
                                 <insertNewLine>true</insertNewLine>
-                                <output>${project.build.directory}/generated-sources/yuicompressor/js/sonatype-all.js</output> <!-- FIXME: rename to nexus-all.js -->
+                                <output>${project.build.directory}/generated-sources/yuicompressor/js/nexus-all.js</output>
                                 <inputDir>${project.build.directory}/generated-sources/yuicompressor/js</inputDir>
                                 <includes>
                                     <include>extensions/ext-override.js</include>
@@ -377,7 +377,7 @@
                             </aggregation>
                             <aggregation>
                                 <insertNewLine>true</insertNewLine>
-                                <output>${project.build.directory}/generated-sources/yuicompressor/style/sonatype-all.css</output> <!-- FIXME: rename to nexus-all.css -->
+                                <output>${project.build.directory}/generated-sources/yuicompressor/style/nexus-all.css</output>
                                 <inputDir>${project.build.directory}/generated-sources/yuicompressor/style</inputDir>
                                 <includes>
                                     <include>*.css</include>
@@ -417,8 +417,8 @@
             <webResource>
               <directory>${project.build.directory}/generated-sources/yuicompressor/</directory>
               <includes>
-                <include>js/sonatype-all.js</include>
-                <include>style/sonatype-all.css</include>
+                <include>js/nexus-all.js</include>
+                <include>style/nexus-all.css</include>
               </includes>
             </webResource>
           </webResources>
