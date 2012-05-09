@@ -14,26 +14,20 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <!-- the version of maven's project object model -->
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Parent POM -->
   <parent>
     <groupId>org.sonatype.nexus</groupId>
     <artifactId>nexus</artifactId>
     <version>2.1-SNAPSHOT</version>
   </parent>
 
-  <!-- a unique name for this project -->
   <artifactId>nexus-webapp</artifactId>
-  <!--we don't need this to be a jar except that the app assembler crashes if it's not -->
-  <packaging>war</packaging>
-  <!-- a short but descriptive name for the project -->
   <name>Nexus : Web Application</name>
+  <packaging>war</packaging>
 
   <properties>
     <nexus-tools-input>target/nexus-tools</nexus-tools-input>
-    <compressed-dir>${project.build.directory}/ui-compressed</compressed-dir>
 
     <plugin-repository.directory>${project.build.finalName}/WEB-INF/plugin-repository</plugin-repository.directory>
     <optional-plugins.directory>${project.build.finalName}/WEB-INF/optional-plugins</optional-plugins.directory>
@@ -392,16 +386,14 @@
         <artifactId>maven-war-plugin</artifactId>
         <version>2.2</version>
         <configuration>
-          <!-- FIXME: Really should sort this out so that its simple w/o any includes/excludes bs -->
-          <warSourceIncludes>
-            *,
-            ext-2.3/**,
-            images/**,
-            WEB-INF/*
-          </warSourceIncludes>
+         <!-- Exclude js/** and style/** we will include the aggregated/optimized versions -->
+         <warSourceExcludes>
+              js/**,
+              style/**
+          </warSourceExcludes>
           <webResources>
             <webResource>
-              <directory>${project.build.directory}/generated-sources/yuicompressor/</directory>
+              <directory>${project.build.directory}/generated-sources/yuicompressor</directory>
               <includes>
                 <include>js/nexus-all.js</include>
                 <include>style/nexus-all.css</include>
