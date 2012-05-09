@@ -347,7 +347,8 @@
                                     <include>sonatype/lib/CookieProvider.js</include>
                                     <include>sonatype/resources.js</include>
                                     <include>sonatype/headLinks.js</include>
-                                    <include>sonatype/view.js</include>d
+                                    <include>sonatype/view.js</include>
+                                    <include>sonatype/view/MainTabPanel.js</include>
                                     <include>ZeroClipboard.js</include>
                                     <include>FormFieldGenerator.js</include>
                                     <include>FormFieldExporter.js</include>

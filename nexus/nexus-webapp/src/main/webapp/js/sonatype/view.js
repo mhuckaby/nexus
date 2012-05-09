@@ -173,31 +173,3 @@ Sonatype.view = {
   // }
   // }
 };
-
-Sonatype.view.MainTabPanel = Ext.extend(Ext.TabPanel, {
-      addOrShowTab : function(id, panelClass, panelClassParams) {
-        var panelClassParams = panelClassParams || {};
-        var tab = this.getComponent(id);
-        if (tab)
-        {
-          this.setActiveTab(tab);
-        }
-        else
-        {
-          tab = new panelClass(Ext.apply({
-                id : id
-              }, panelClassParams));
-          this.add(tab);
-        }
-
-        this.setActiveTab(tab);
-
-        return tab;
-      }
-    });
-
-Sonatype.Events.addListener('nexusNavigationInit', function(panel) {
-      Sonatype.view.viewport.doLayout();
-    });
-
-Sonatype.utils.updateGlobalTimeout();
