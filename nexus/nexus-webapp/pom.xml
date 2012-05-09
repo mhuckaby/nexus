@@ -291,7 +291,24 @@
                                 <inputDir>${project.build.directory}/generated-sources/yuicompressor/js</inputDir>
                                 <includes>
                                     <include>lang.js</include>
-                                    <include>extensions/ext-override.js</include>
+                                    <include>ext/lib/Ajax.js</include>
+                                    <include>ext/form/TextArea.js</include>
+                                    <include>ext/data/Connection.js</include>
+                                    <include>ext/data/Node.js</include>
+                                    <include>ext/Component.js</include>
+                                    <include>ext/dd/DropTarget.js</include>
+                                    <include>ext/dd/DropZone.js</include>
+                                    <include>ext/grid/GridView.js</include>
+                                    <include>ext/tree/TreeNode.js</include>
+                                    <include>ext/tree/TreeNodeUI.js</include>
+                                    <include>ext/layout/FormLayout.js</include>
+                                    <include>ext/grid/CheckColumn.js</include>
+                                    <include>ext/tree/TreeDropZone.js</include>
+                                    <include>ext/data/Store.js</include>
+                                    <include>ext/ToolTip.js</include>
+                                    <include>ext/ux/plugins/GridValidator.js</include>
+                                    <include>ext/History.js</include>
+                                    <include>ext/tree/TreeLoader.js</include>
                                     <include>filetree/js/Ext.ux.form.BrowseButton.js</include>
                                     <include>ext/ux/form/GroupComboBox.js</include>
                                     <include>ext/ux/form/GroupDataView.js</include>
