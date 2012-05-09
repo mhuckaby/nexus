@@ -365,6 +365,7 @@
                                     <include>repoServer/UserEditPanel.js</include>
                                     <include>repoServer/RoleEditPanel.js</include>
                                     <include>repoServer/PrivilegeEditPanel.js</include>
+                                    <include>repoServer/PrivilegeEditor.js</include>
                                     <include>repoServer/AbstractRepoPanel.js</include>
                                     <include>repoServer/ArtifactUploadPanel.js</include>
                                     <include>repoServer/RepoMaintPanel.js</include>
