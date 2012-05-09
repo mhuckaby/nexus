@@ -314,7 +314,8 @@
                                     <include>sonatype/panels/TreePanel.js</include>
                                     <include>ext/ux/form/LovCombo.js</include>
                                     <include>ext/ux/ThemeCombo.js</include>
-                                    <include>RoleSelector.js</include>
+                                    <include>RoleManager.js</include>
+                                    <include>RoleSelectorGrid.js</include>
                                     <include>sonatype/utils.js</include>
                                     <include>sonatype/config.js</include>
                                     <include>sonatype/user.js</include>
