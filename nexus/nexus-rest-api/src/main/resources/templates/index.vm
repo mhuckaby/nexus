@@ -26,8 +26,11 @@
   #end
   <!-- Plugin pre HEAD contributions ends here -->
 
-  <link rel="stylesheet" href="ext-2.3/resources/css/ext-all.css" type="text/css" media="screen" charset="UTF-8">
-  <link rel="stylesheet" href="ext-2.3/resources/css/xtheme-gray.css" type="text/css" media="screen" charset="UTF-8">
+  <link rel="stylesheet" href="ext-2.3/css/ext-all.css" type="text/css" media="screen" charset="UTF-8">
+  <link rel="stylesheet" href="ext-2.3/css/xtheme-gray.css" type="text/css" media="screen" charset="UTF-8">
+  <script src="ext-2.3/ext-base.js?$nexusVersion" type="text/javascript" charset="UTF-8"></script>
+  <script src="ext-2.3/ext-all.js?$nexusVersion" type="text/javascript" charset="UTF-8"></script>
+
   <link rel="stylesheet" href="style/sonatype-all.css?$nexusVersion" type="text/css" media="screen" title="no title" charset="UTF-8">
 
   <script src="js/sonatype-all.js?$nexusVersion" type="text/javascript" charset="UTF-8"></script>
