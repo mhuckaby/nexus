@@ -140,7 +140,7 @@
      * 
      * @param {String}
      *          value The value to decode
-     * @return {Mixed} The decoded value
+     * @return {*} The decoded value
      */
     decodeValue : function(cookie) {
       var re = /^(a|n|d|b|s|o)\:(.*)$/;
