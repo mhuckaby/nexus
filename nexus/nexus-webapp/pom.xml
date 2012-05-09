@@ -366,11 +366,11 @@
                                     <include>repoServer/RoleEditPanel.js</include>
                                     <include>repoServer/PrivilegeEditPanel.js</include>
                                     <include>repoServer/AbstractRepoPanel.js</include>
-                                    <include>repoServer/FileUploadPanel.js</include>
+                                    <include>repoServer/ArtifactUploadPanel.js</include>
                                     <include>repoServer/RepoMaintPanel.js</include>
                                     <include>repoServer/RepositoryBrowserContainer.js</include>
                                     <include>repoServer/RepoEditPanel.js</include>
-                                    <include>repoServer/GroupsEditPanel.js</include>
+                                    <include>repoServer/RepositoryGroupEditor.js</include>
                                     <include>repoServer/RepoServer.js</include>
                                     <include>repoServer/RepoTargetEditPanel.js</include>
                                     <include>repoServer/HelpAboutPanel.js</include>
