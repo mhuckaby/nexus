@@ -290,6 +290,7 @@
                                 <output>${project.build.directory}/generated-sources/yuicompressor/js/nexus-all.js</output>
                                 <inputDir>${project.build.directory}/generated-sources/yuicompressor/js</inputDir>
                                 <includes>
+                                    <include>lang.js</include>
                                     <include>extensions/ext-override.js</include>
                                     <include>filetree/js/Ext.ux.form.BrowseButton.js</include>
                                     <include>ext/ux/form/GroupComboBox.js</include>
@@ -305,16 +306,20 @@
                                     <include>sonatype/ext/twinpanel.js</include>
                                     <include>sonatype/ext/TextEntryList.js</include>
                                     <include>sonatype/Events.js</include>
-                                    <include>sonatype/navigation.js</include>
+                                    <include>sonatype/navigation/NavigationPanel.js</include>
+                                    <include>sonatype/navigation/Section.js</include>
                                     <include>sonatype/menu/Menu.js</include>
-                                    <include>sonatype/panels.js</include>
+                                    <include>sonatype/panels/AutoTabPanel.js</include>
+                                    <include>sonatype/panels/GridViewer.js</include>
+                                    <include>sonatype/panels/TreePanel.js</include>
                                     <include>ext/ux/form/LovCombo.js</include>
                                     <include>ext/ux/ThemeCombo.js</include>
                                     <include>RoleSelector.js</include>
                                     <include>sonatype/utils.js</include>
                                     <include>sonatype/config.js</include>
                                     <include>sonatype/user.js</include>
-                                    <include>sonatype/lib.js</include>
+                                    <include>sonatype/lib/Permissions.js</include>
+                                    <include>sonatype/lib/CookieProvider.js</include>
                                     <include>sonatype/resources.js</include>
                                     <include>sonatype/headLinks.js</include>
                                     <include>sonatype/view.js</include>d

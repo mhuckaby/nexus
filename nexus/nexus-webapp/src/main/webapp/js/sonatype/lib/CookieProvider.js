@@ -12,42 +12,7 @@
  */
 (function() {
 
-  Sonatype.lib.Permissions = {
-    READ : 1, // 0001
-    EDIT : 2, // 0010
-    DELETE : 4, // 0100
-    CREATE : 8, // 1000
-    ALL : 15, // 1111
-    NONE : 0, // 0000
-
-    // returns bool indicating if value has all perms
-    // all values are base 10 representations of the n-bit representation
-    // Example: for 4-bit permissions: 3 (base to) represents 0011 (base 2)
-    checkPermission : function(value, perm /* , perm... */) {
-      var p = perm;
-
-      if (Sonatype.user.curr.repoServer)
-      {
-        Ext.each(Sonatype.user.curr.repoServer, function(item, i, arr) {
-              if (item.id == value)
-              {
-                value = item.value;
-                return false;
-              }
-            });
-      }
-
-      if (arguments.length > 2)
-      {
-        var perms = Array.slice(arguments, 2);
-        Ext.each(perms, function(item, i, arr) {
-              p = p | item;
-            });
-      }
-
-      return ((p & value) == p);
-    }
-  };
+  Ext.namespace('Sonatype.lib');
 
   /*
    * Adapted from ExtJS v2.0.2 Ext.state.CookieProvider; removed inheritance
