@@ -14,8 +14,8 @@
 <html>
   <head>
     <title>$statusCode - $statusName</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <link rel="stylesheet" href="$nexusRoot/style/Sonatype-content.css?$nexusVersion" type="text/css" media="screen" title="no title" charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="$nexusRoot/style/nexus-content.css?$nexusVersion" type="text/css" media="screen" title="no title" charset="UTF-8">
   </head>
   <body>
     <h1>$statusCode - $statusName</h1>
