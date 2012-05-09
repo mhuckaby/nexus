@@ -52,7 +52,7 @@ Sonatype.repoServer.LogsViewPanel = function(config) {
 
   this.tailUpdateButton = new Ext.SplitButton({
         text : 'Update log tail manually',
-        icon : Sonatype.config.extPath + '/resources/images/default/grid/refresh.gif',
+        icon : Sonatype.config.extPath + '/images/default/grid/refresh.gif',
         cls : 'x-btn-text-icon',
         value : '0',
         handler : this.loadTailButtonHandler,

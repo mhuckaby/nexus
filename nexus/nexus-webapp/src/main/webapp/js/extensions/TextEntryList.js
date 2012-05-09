@@ -141,7 +141,7 @@ Ext.extend(Sonatype.ext.TextEntryList, Ext.Panel, {
                   draggable : false,
                   leaf : true,
                   nodeType : 'entry',
-                  icon : Sonatype.config.extPath + '/resources/images/default/tree/leaf.gif'
+                  icon : Sonatype.config.extPath + '/images/default/tree/leaf.gif'
                 }));
       },
 

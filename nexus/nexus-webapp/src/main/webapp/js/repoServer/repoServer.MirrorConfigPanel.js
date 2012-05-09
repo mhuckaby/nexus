@@ -108,7 +108,7 @@ Ext.extend(Sonatype.repoServer.AbstractMirrorPanel, Sonatype.ext.FormPanel, {
 
             urlField.clearInvalid();
 
-            this.addUrlNode(treePanel, url, url, Sonatype.config.extPath + '/resources/images/default/tree/leaf.gif');
+            this.addUrlNode(treePanel, url, url, Sonatype.config.extPath + '/images/default/tree/leaf.gif');
             urlField.setRawValue('');
             urlField.setValue('');
           }
@@ -195,7 +195,7 @@ Ext.extend(Sonatype.repoServer.AbstractMirrorPanel, Sonatype.ext.FormPanel, {
             mirrorArray[i] = {
               id : arr[i].id,
               url : arr[i].url,
-              icon : Sonatype.config.extPath + '/resources/images/default/tree/leaf.gif'
+              icon : Sonatype.config.extPath + '/images/default/tree/leaf.gif'
             };
           }
         }
@@ -252,7 +252,7 @@ Ext.extend(Sonatype.repoServer.AbstractMirrorPanel, Sonatype.ext.FormPanel, {
                   {
                     if (item.id == childNodes[j].id)
                     {
-                      childNodes[j].getUI().getIconEl().src = item.status == 'Blacklisted' ? (Sonatype.config.extPath + '/resources/images/default/tree/drop-no.gif') : (Sonatype.config.extPath + '/resources/images/default/tree/drop-yes.gif');
+                      childNodes[j].getUI().getIconEl().src = item.status == 'Blacklisted' ? (Sonatype.config.extPath + '/images/default/tree/drop-no.gif') : (Sonatype.config.extPath + '/images/default/tree/drop-yes.gif');
                       break;
                     }
                   }

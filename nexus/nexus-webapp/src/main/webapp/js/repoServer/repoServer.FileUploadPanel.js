@@ -561,7 +561,7 @@ Ext.extend(Sonatype.repoServer.ArtifactUploadPanel, Ext.FormPanel, {
                 allowChildren : false,
                 draggable : false,
                 leaf : true,
-                icon : Sonatype.config.extPath + '/resources/images/default/tree/leaf.gif'
+                icon : Sonatype.config.extPath + '/images/default/tree/leaf.gif'
               }));
         }
         filenameField.setValue('');

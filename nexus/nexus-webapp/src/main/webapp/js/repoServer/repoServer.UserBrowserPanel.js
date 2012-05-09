@@ -99,7 +99,7 @@ Ext.extend(Sonatype.repoServer.UserBrowsePanel, Ext.tree.TreePanel, {
               allowChildren : (children && children.length > 0) ? true : false,
               draggable : false,
               leaf : (children && children.length > 0) ? false : true,
-              icon : (type == 'role') ? (Sonatype.config.extPath + '/resources/images/default/tree/folder.gif') : (Sonatype.config.extPath + '/resources/images/default/tree/leaf.gif')
+              icon : (type == 'role') ? (Sonatype.config.extPath + '/images/default/tree/folder.gif') : (Sonatype.config.extPath + '/images/default/tree/leaf.gif')
             });
 
         parentNode.appendChild(childNode);

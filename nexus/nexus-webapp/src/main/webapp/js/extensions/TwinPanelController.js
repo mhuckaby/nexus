@@ -24,7 +24,7 @@ Sonatype.ext.TwinPanelController = function(config) {
         handler : this.addOne,
         scope : this,
         tooltip : 'Add',
-        icon : Sonatype.config.extPath + '/resources/images/default/grid/page-prev.gif',
+        icon : Sonatype.config.extPath + '/images/default/grid/page-prev.gif',
         cls : 'x-btn-icon'
       });
 
@@ -33,7 +33,7 @@ Sonatype.ext.TwinPanelController = function(config) {
         handler : this.addAll,
         scope : this,
         tooltip : 'Add All',
-        icon : Sonatype.config.extPath + '/resources/images/default/grid/page-first.gif',
+        icon : Sonatype.config.extPath + '/images/default/grid/page-first.gif',
         cls : 'x-btn-icon'
       });
 
@@ -42,7 +42,7 @@ Sonatype.ext.TwinPanelController = function(config) {
         handler : this.removeOne,
         scope : this,
         tooltip : 'Remove',
-        icon : Sonatype.config.extPath + '/resources/images/default/grid/page-next.gif',
+        icon : Sonatype.config.extPath + '/images/default/grid/page-next.gif',
         cls : 'x-btn-icon'
       });
 
@@ -51,7 +51,7 @@ Sonatype.ext.TwinPanelController = function(config) {
         handler : this.removeAll,
         scope : this,
         tooltip : 'Remove All',
-        icon : Sonatype.config.extPath + '/resources/images/default/grid/page-last.gif',
+        icon : Sonatype.config.extPath + '/images/default/grid/page-last.gif',
         cls : 'x-btn-icon'
       });
 
@@ -173,7 +173,7 @@ Sonatype.ext.TwinPanelChooser = function(config) {
     displayField : 'name',
     validateLeftItems : false,
     validateLeftItemsText : 'Invalid items selected.',
-    nodeIcon : Sonatype.config.extPath + '/resources/images/default/tree/leaf.gif'
+    nodeIcon : Sonatype.config.extPath + '/images/default/tree/leaf.gif'
   };
   Ext.apply(this, config, defaultConfig);
 

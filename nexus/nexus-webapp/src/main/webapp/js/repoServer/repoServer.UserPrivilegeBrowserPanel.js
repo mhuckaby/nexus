@@ -150,7 +150,7 @@ Ext.extend(Sonatype.repoServer.UserPrivilegeBrowsePanel, Ext.FormPanel, {
               allowChildren : (childData.parents && childData.parents.length > 0) ? true : false,
               draggable : false,
               leaf : (childData.parents && childData.parents.length > 0) ? false : true,
-              icon : Sonatype.config.extPath + '/resources/images/default/tree/folder.gif'
+              icon : Sonatype.config.extPath + '/images/default/tree/folder.gif'
             });
 
         rootNode.appendChild(childNode);
