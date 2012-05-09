@@ -297,7 +297,14 @@
                                     <include>ext/ux/form/GroupDataView.js</include>
                                     <include>Sonatype.js</include>
                                     <include>sonatype/MessageBox.js</include>
-                                    <include>extensions/Ext.form.js</include>
+                                    <include>ext/form/BasicForm.js</include>
+                                    <include>ext/form/Field.js</include>
+                                    <include>ext/form/Action.js</include>
+                                    <include>sonatype/ext/FormPanel.js</include>
+                                    <include>ext/form/DisplayField.js</include>
+                                    <include>ext/form/TimestampDisplayField.js</include>
+                                    <include>ext/form/ByteDisplayField.js</include>
+                                    <include>ext/form/TextField.js</include>
                                     <include>ext/app/SearchField.js</include>
                                     <include>sonatype/ext/FeedGrid.js</include>
                                     <include>ext/tree/SonatypeTreeLoader.js</include>
