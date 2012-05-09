@@ -322,4 +322,4 @@ ZeroClipboard.Client.prototype = {
 	
 };
 
-ZeroClipboard.setMoviePath( Sonatype.config.host + Sonatype.config.resourcePath + '/js/extensions/ZeroClipboard.swf' );
+ZeroClipboard.setMoviePath( Sonatype.config.host + Sonatype.config.resourcePath + '/ZeroClipboard.swf' );
