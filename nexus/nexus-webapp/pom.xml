@@ -309,7 +309,6 @@
                                     <include>ext/ux/plugins/GridValidator.js</include>
                                     <include>ext/History.js</include>
                                     <include>ext/tree/TreeLoader.js</include>
-                                    <include>filetree/js/Ext.ux.form.BrowseButton.js</include>
                                     <include>ext/ux/form/GroupComboBox.js</include>
                                     <include>ext/ux/form/GroupDataView.js</include>
                                     <include>Sonatype.js</include>
