@@ -290,6 +290,7 @@
                                 <output>${project.build.directory}/generated-sources/yuicompressor/js/nexus-all.js</output>
                                 <inputDir>${project.build.directory}/generated-sources/yuicompressor/js</inputDir>
                                 <includes>
+                                    <!-- FIXME: Order is is more or less how it was before unrolling, can probably simplify/organize -->
                                     <include>lang.js</include>
                                     <include>ext/lib/Ajax.js</include>
                                     <include>ext/form/TextArea.js</include>
@@ -326,7 +327,8 @@
                                     <include>ext/tree/SonatypeTreeLoader.js</include>
                                     <include>ext/util/MD5.js</include>
                                     <include>ext/ux/MultiSelectTree.js</include>
-                                    <include>sonatype/ext/twinpanel.js</include>
+                                    <include>sonatype/ext/TwinPanelController.js</include>
+                                    <include>sonatype/ext/TwinPanelChooser.js</include>
                                     <include>sonatype/ext/TextEntryList.js</include>
                                     <include>sonatype/Events.js</include>
                                     <include>sonatype/navigation/NavigationPanel.js</include>
