@@ -18,7 +18,7 @@
 <head>
   <title>$appName</title>
   
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <link rel="shortcut icon" href="favicon.ico" type="image/gif" />
   <link rel="search" type="application/opensearchdescription+xml" href="$serviceBase/opensearch" title="Nexus" />
 
@@ -28,11 +28,11 @@
   #end
   <!-- Plugin pre HEAD contributions ends here -->
 
-  <link rel="stylesheet" href="ext-2.3/resources/css/ext-all.css" type="text/css" media="screen" charset="utf-8">
-  <link rel="stylesheet" href="ext-2.3/resources/css/xtheme-gray.css" type="text/css" media="screen" charset="utf-8">
-  <link rel="stylesheet" href="style/sonatype-all.css?$nexusVersion" type="text/css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="ext-2.3/resources/css/ext-all.css" type="text/css" media="screen" charset="UTF-8">
+  <link rel="stylesheet" href="ext-2.3/resources/css/xtheme-gray.css" type="text/css" media="screen" charset="UTF-8">
+  <link rel="stylesheet" href="style/sonatype-all.css?$nexusVersion" type="text/css" media="screen" title="no title" charset="UTF-8">
 
-  <script src="js/sonatype-all.js?$nexusVersion" type="text/javascript" charset="utf-8"></script>
+  <script src="js/sonatype-all.js?$nexusVersion" type="text/javascript" charset="UTF-8"></script>
   
   <!-- Plugin post HEAD contributions start here -->
   #foreach( $pluginPostHeadContribution in $pluginPostHeadContributions )
@@ -40,7 +40,7 @@
   #end
   <!-- Plugin post HEAD contributions ends here -->
 
-  <script type="text/javascript" charset="utf-8">
+  <script type="text/javascript" charset="UTF-8">
     Ext.onReady(Sonatype.init);
   </script>
 </head>
