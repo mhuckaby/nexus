@@ -119,7 +119,7 @@ Sonatype.repoServer.LdapUserEditor = function( config ) {
         valueField: 'id',
         store: this.roleDataStore,
         required: true,
-        nodeIcon: Sonatype.config.extPath + '/resources/images/default/tree/folder.gif'
+        nodeIcon: Sonatype.config.extPath + '/images/default/tree/folder.gif'
       }
     ]
   } );
