@@ -65,25 +65,26 @@ public class Launcher
         // "strongest" (overrides). Factory already created us some sources, so we are just adding to that list without
         // disturbing the order of the list (we add to list head and tail)
         
+        // add the jvm.properties, is mandatory to be present (and we need ref to this source, see below)
         final PropertiesFileEntrySource jvmProperties =
             new PropertiesFileEntrySource( new File( cwd, "jvm.properties" ), true );
         request.getSources().add( 0, jvmProperties );
-
         // add the nexus.properties, is mandatory to be present
-        request.getSources().add( 0, new PropertiesFileEntrySource( new File( cwd, "nexus.properties" ), true ) );
+        request.getSources().add( 1, new PropertiesFileEntrySource( new File( cwd, "nexus.properties" ), true ) );
         // add the nexus-test.properties, not mandatory to be present
-        request.getSources().add( 1, new PropertiesFileEntrySource( new File( cwd, "nexus-test.properties" ), false ) );
+        request.getSources().add( 2, new PropertiesFileEntrySource( new File( cwd, "nexus-test.properties" ), false ) );
 
         // ultimate source of "bundleBasedir" (hence, is added as last in sources list)
+        // TODO: what happens if user added "bundleBasedir" to jvm.properties file?
+        // Now, that will be always overriden by value got from cwd and that seems correct to me
         request.getSources().add( new StaticEntrySource( BUNDLEBASEDIR_KEY, cwd.getAbsolutePath() ) );
 
         // by default, publishers list will contain one "dump" publisher and hence, on creation, a dump will be written
         // out (to System.out or SLF4J logger, depending is latter on classpath or not)
-        // if we want to "mute" this dump, just clear the list (before we add anything to it)
-        request.getPublishers().clear();
-        // Note: before, we had contexts: jetty - nexus
+        // if we dont want to "mute" this dump, just uncomment this below
+        // request.getPublishers().clear();
 
-        // publisher order does not matter for us, unlike sources
+        // publishers (order does not matter for us, unlike sources)
         // we need to publish one property: "bundleBasedir"
         request.getPublishers().add( new EntryPublisher()
         {
