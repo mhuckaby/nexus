@@ -1,57 +1,121 @@
 package org.sonatype.nexus.bootstrap;
 
-import org.eclipse.jetty.util.resource.Resource;
-import org.sonatype.sisu.jetty.Jetty8;
-import org.tanukisoftware.wrapper.WrapperManager;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Map;
-import java.util.Properties;
+import java.util.Arrays;
+
+import org.sonatype.appcontext.AppContext;
+import org.sonatype.appcontext.AppContextEntry;
+import org.sonatype.appcontext.AppContextRequest;
+import org.sonatype.appcontext.Factory;
+import org.sonatype.appcontext.publisher.EntryPublisher;
+import org.sonatype.appcontext.source.PropertiesFileEntrySource;
+import org.sonatype.appcontext.source.StaticEntrySource;
+import org.sonatype.sisu.jetty.Jetty8;
+import org.tanukisoftware.wrapper.WrapperManager;
 
 import static org.tanukisoftware.wrapper.WrapperManager.WRAPPER_CTRL_LOGOFF_EVENT;
 
 /**
  * Nexus bootstrap launcher.
- *
+ * 
  * @since 2.1
  */
 public class Launcher
     extends WrapperListenerSupport
 {
+    private static final String BUNDLEBASEDIR_KEY = "bundleBasedir";
+    
     private Jetty8 server;
 
     @Override
-    protected Integer doStart(final String[] args) throws Exception {
-        if (WrapperManager.isControlledByNativeWrapper()) {
-            log.info("JVM ID: {}, JVM PID: {}, Wrapper PID: {}, User: {}", new Object[]{
-                WrapperManager.getJVMId(),
-                WrapperManager.getJavaPID(),
-                WrapperManager.getWrapperPID(),
-                WrapperManager.getUser(false).getUser()
-            });
+    protected Integer doStart( final String[] args )
+        throws Exception
+    {
+        if ( WrapperManager.isControlledByNativeWrapper() )
+        {
+            log.info( "JVM ID: {}, JVM PID: {}, Wrapper PID: {}, User: {}",
+                new Object[] { WrapperManager.getJVMId(), WrapperManager.getJavaPID(), WrapperManager.getWrapperPID(),
+                    WrapperManager.getUser( false ).getUser() } );
         }
 
-        File cwd = new File(".").getCanonicalFile();
-        log.info("Current directory: {}", cwd);
+        File cwd = new File( "." ).getCanonicalFile();
+        log.info( "Current directory: {}", cwd );
 
-        // TODO: Sort out how this shit works with appcontext
-
-        maybeSetProperty("basedir", cwd.getAbsolutePath());
-        maybeSetProperty("bundleBasedir", cwd.getAbsolutePath());
-
-        loadProperties("default.properties", true);
-        loadProperties("/nexus.properties", true);
-        loadProperties("/nexus-test.properties", false);
-
-        if (args.length != 1) {
-            log.error("Missing Jetty configuration file parameter");
+        if ( args.length != 1 )
+        {
+            log.error( "Missing Jetty configuration file parameter" );
             return 1; // exit
         }
-        File file = new File(args[0]);
-        server = new Jetty8(file);
+        
+        // we have three properties file:
+        // jvm.properties -- mandatory, will be picked up into context and published to JVM System Properties
+        // this is the place to set java.io.tmp and debug options by users
+        
+        // nexus.properties -- mandatory, will be picked up into context and NOT published to JVM System Properties
+        // this is place to set nexus properties like workdir location etc (as today)
+        
+        // nexus-test.properties -- optional, if present, will override values from those above
+        // this is place to set test properties (like jetty port) etc 
+
+        // create app context request, with ID "nexus", without parent, and due to NEXUS-4520 add "plexus" alias too
+        final AppContextRequest request = Factory.getDefaultRequest( "nexus", null, Arrays.asList( "plexus" ) );
+
+        // note: sources list is "ascending by importance", 1st elem in list is "weakest" and last elem in list is
+        // "strongest" (overrides). Factory already created us some sources, so we are just adding to that list without
+        // disturbing the order of the list (we add to list head and tail)
+        
+        final PropertiesFileEntrySource jvmProperties =
+            new PropertiesFileEntrySource( new File( cwd, "jvm.properties" ), true );
+        request.getSources().add( 0, jvmProperties );
+
+        // add the nexus.properties, is mandatory to be present
+        request.getSources().add( 0, new PropertiesFileEntrySource( new File( cwd, "nexus.properties" ), true ) );
+        // add the nexus-test.properties, not mandatory to be present
+        request.getSources().add( 1, new PropertiesFileEntrySource( new File( cwd, "nexus-test.properties" ), false ) );
+
+        // ultimate source of "bundleBasedir" (hence, is added as last in sources list)
+        request.getSources().add( new StaticEntrySource( BUNDLEBASEDIR_KEY, cwd.getAbsolutePath() ) );
+
+        // by default, publishers list will contain one "dump" publisher and hence, on creation, a dump will be written
+        // out (to System.out or SLF4J logger, depending is latter on classpath or not)
+        // if we want to "mute" this dump, just clear the list (before we add anything to it)
+        request.getPublishers().clear();
+        // Note: before, we had contexts: jetty - nexus
+
+        // publisher order does not matter for us, unlike sources
+        // we need to publish one property: "bundleBasedir"
+        request.getPublishers().add( new EntryPublisher()
+        {
+            @Override
+            public void publishEntries( final AppContext context )
+            {
+                System.setProperty( BUNDLEBASEDIR_KEY, String.valueOf( context.get( BUNDLEBASEDIR_KEY ) ) );
+            }
+        } );
+
+        // we need to publish all entries coming from jvm.properties
+        request.getPublishers().add( new EntryPublisher()
+        {
+            @Override
+            public void publishEntries( final AppContext context )
+            {
+                for ( String key : context.keySet() )
+                {
+                    final AppContextEntry entry = context.getAppContextEntry( key );
+                    if ( entry.getEntrySourceMarker() == jvmProperties )
+                    {
+                        System.setProperty( key, String.valueOf( entry.getValue() ) );
+                    }
+                }
+            }
+        } );
+
+        // create the context and use it as "parent" for Jetty8
+        // when context created, the context is built and all publisher were invoked (system props set for example)
+        final AppContext context = Factory.create( request );
+
+        server = new Jetty8( new File( args[0] ), context );
 
         ensureTmpDirSanity();
         maybeEnableCommandMonitor();
@@ -60,97 +124,72 @@ public class Launcher
         return null; // continue running
     }
 
-    protected void ensureTmpDirSanity() throws IOException {
+    protected void ensureTmpDirSanity()
+        throws IOException
+    {
         // Make sure that java.io.tmpdir points to a real directory
-        String tmp = System.getProperty("java.io.tmpdir", "tmp");
-        File file = new File(tmp);
-        if (!file.exists()) {
-            if (file.mkdirs()) {
-                log.info("Created tmp dir: {}", file);
+        String tmp = System.getProperty( "java.io.tmpdir", "tmp" );
+        File file = new File( tmp );
+        if ( !file.exists() )
+        {
+            if ( file.mkdirs() )
+            {
+                log.info( "Created tmp dir: {}", file );
             }
         }
-        else if (!file.isDirectory()) {
-            log.warn("Tmp dir is configured to a location which is not a directory: {}", file);
+        else if ( !file.isDirectory() )
+        {
+            log.warn( "Tmp dir is configured to a location which is not a directory: {}", file );
         }
 
         // Ensure we can actually create a new tmp file
-        file = File.createTempFile(getClass().getSimpleName(), ".tmp");
+        file = File.createTempFile( getClass().getSimpleName(), ".tmp" );
         file.createNewFile();
         File tmpDir = file.getCanonicalFile().getParentFile();
-        log.info("Temp directory: {}", tmpDir);
-        System.setProperty("java.io.tmpdir", tmpDir.getAbsolutePath());
+        log.info( "Temp directory: {}", tmpDir );
+        System.setProperty( "java.io.tmpdir", tmpDir.getAbsolutePath() );
         file.delete();
     }
 
-    protected void maybeEnableCommandMonitor() throws IOException {
-        String commandMonitorPort = System.getProperty(CommandMonitorThread.class.getName() + ".port");
-        if (commandMonitorPort != null) {
-            new CommandMonitorThread(Integer.parseInt(commandMonitorPort)).start();
-        }
-    }
-
-    private void loadProperties(final Resource resource) throws IOException {
-        assert resource != null;
-        log.debug("Loading properties from: {}", resource);
-        Properties props = new Properties();
-        InputStream input = resource.getInputStream();
-        try {
-            props.load(input);
-            if (log.isDebugEnabled()) {
-                for (Map.Entry entry : props.entrySet()) {
-                    log.debug("  {}='{}'", entry.getKey(), entry.getValue());
-                }
-            }
-        }
-        finally {
-            input.close();
-        }
-        System.getProperties().putAll(props);
-    }
-
-    private void loadProperties(final String resource, final boolean required) throws IOException {
-        URL url = getClass().getResource(resource);
-        if (url == null) {
-            if (required) {
-                log.error("Missing resource: {}", resource);
-            }
-            else {
-                log.debug("Missing optional resource: {}", resource);
-            }
-        }
-        else {
-            loadProperties(Resource.newResource(url));
-        }
-    }
-
-    private void maybeSetProperty(final String name, final String value) {
-        if (System.getProperty(name) == null) {
-            System.setProperty(name, value);
+    protected void maybeEnableCommandMonitor()
+        throws IOException
+    {
+        String commandMonitorPort = System.getProperty( CommandMonitorThread.class.getName() + ".port" );
+        if ( commandMonitorPort != null )
+        {
+            new CommandMonitorThread( Integer.parseInt( commandMonitorPort ) ).start();
         }
     }
 
     @Override
-    protected int doStop(final int code) throws Exception {
+    protected int doStop( final int code )
+        throws Exception
+    {
         server.stopJetty();
         return code;
     }
 
     @Override
-    protected void doControlEvent(final int code) {
-        if (WRAPPER_CTRL_LOGOFF_EVENT == code && WrapperManager.isLaunchedAsService()) {
-            log.debug("Launched as a service; ignoring event: {}", code);
+    protected void doControlEvent( final int code )
+    {
+        if ( WRAPPER_CTRL_LOGOFF_EVENT == code && WrapperManager.isLaunchedAsService() )
+        {
+            log.debug( "Launched as a service; ignoring event: {}", code );
         }
-        else {
-            log.debug("Stopping");
-            WrapperManager.stop(0);
-            throw new Error("unreachable");
+        else
+        {
+            log.debug( "Stopping" );
+            WrapperManager.stop( 0 );
+            throw new Error( "unreachable" );
         }
     }
 
     /**
      * Bridges standard Java entry-point into JSW.
      */
-    public static void main(final String[] args) throws Exception {
-        WrapperManager.start(new Launcher(), args);
+    public static void main( final String[] args )
+        throws Exception
+    {
+        WrapperManager.start( new Launcher(), args );
     }
 }
