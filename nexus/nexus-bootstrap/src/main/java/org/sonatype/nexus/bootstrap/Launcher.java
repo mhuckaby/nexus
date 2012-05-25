@@ -2,13 +2,19 @@ package org.sonatype.nexus.bootstrap;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Properties;
 
+import org.eclipse.jetty.util.resource.Resource;
 import org.sonatype.appcontext.AppContext;
-import org.sonatype.appcontext.AppContextEntry;
 import org.sonatype.appcontext.AppContextRequest;
 import org.sonatype.appcontext.Factory;
 import org.sonatype.appcontext.publisher.EntryPublisher;
+import org.sonatype.appcontext.publisher.SystemPropertiesEntryPublisher;
+import org.sonatype.appcontext.source.PropertiesEntrySource;
 import org.sonatype.appcontext.source.PropertiesFileEntrySource;
 import org.sonatype.appcontext.source.StaticEntrySource;
 import org.sonatype.sisu.jetty.Jetty8;
@@ -25,7 +31,7 @@ public class Launcher
     extends WrapperListenerSupport
 {
     private static final String BUNDLEBASEDIR_KEY = "bundleBasedir";
-    
+
     private Jetty8 server;
 
     @Override
@@ -47,16 +53,18 @@ public class Launcher
             log.error( "Missing Jetty configuration file parameter" );
             return 1; // exit
         }
-        
+
         // we have three properties file:
-        // jvm.properties -- mandatory, will be picked up into context and published to JVM System Properties
+        // default.properties -- embedded in this jar (not user editable)
         // this is the place to set java.io.tmp and debug options by users
-        
-        // nexus.properties -- mandatory, will be picked up into context and NOT published to JVM System Properties
+
+        // nexus.properties -- mandatory, will be picked up into context
         // this is place to set nexus properties like workdir location etc (as today)
-        
+
         // nexus-test.properties -- optional, if present, will override values from those above
-        // this is place to set test properties (like jetty port) etc 
+        // this is place to set test properties (like jetty port) etc
+
+        // we "push" whole app context into system properties
 
         // create app context request, with ID "nexus", without parent, and due to NEXUS-4520 add "plexus" alias too
         final AppContextRequest request = Factory.getDefaultRequest( "nexus", null, Arrays.asList( "plexus" ) );
@@ -64,11 +72,10 @@ public class Launcher
         // note: sources list is "ascending by importance", 1st elem in list is "weakest" and last elem in list is
         // "strongest" (overrides). Factory already created us some sources, so we are just adding to that list without
         // disturbing the order of the list (we add to list head and tail)
-        
-        // add the jvm.properties, is mandatory to be present (and we need ref to this source, see below)
-        final PropertiesFileEntrySource jvmProperties =
-            new PropertiesFileEntrySource( new File( cwd, "jvm.properties" ), true );
-        request.getSources().add( 0, jvmProperties );
+
+        // add the defaults as least important, is mandatory to be present
+        request.getSources().add( 0,
+            new PropertiesEntrySource( "defaults", loadProperties( "default.properties", true ) ) );
         // add the nexus.properties, is mandatory to be present
         request.getSources().add( 1, new PropertiesFileEntrySource( new File( cwd, "nexus.properties" ), true ) );
         // add the nexus-test.properties, not mandatory to be present
@@ -96,21 +103,7 @@ public class Launcher
         } );
 
         // we need to publish all entries coming from jvm.properties
-        request.getPublishers().add( new EntryPublisher()
-        {
-            @Override
-            public void publishEntries( final AppContext context )
-            {
-                for ( String key : context.keySet() )
-                {
-                    final AppContextEntry entry = context.getAppContextEntry( key );
-                    if ( entry.getEntrySourceMarker() == jvmProperties )
-                    {
-                        System.setProperty( key, String.valueOf( entry.getValue() ) );
-                    }
-                }
-            }
-        } );
+        request.getPublishers().add( new SystemPropertiesEntryPublisher( true ) );
 
         // create the context and use it as "parent" for Jetty8
         // when context created, the context is built and all publisher were invoked (system props set for example)
@@ -123,6 +116,54 @@ public class Launcher
 
         server.startJetty();
         return null; // continue running
+    }
+
+    private Properties loadProperties( final Resource resource )
+        throws IOException
+    {
+        assert resource != null;
+        log.debug( "Loading properties from: {}", resource );
+        Properties props = new Properties();
+        InputStream input = resource.getInputStream();
+        try
+        {
+            props.load( input );
+            if ( log.isDebugEnabled() )
+            {
+                for ( Map.Entry<Object, Object> entry : props.entrySet() )
+                {
+                    log.debug( "  {}='{}'", entry.getKey(), entry.getValue() );
+                }
+            }
+        }
+        finally
+        {
+            input.close();
+        }
+        return props;
+    }
+
+    private Properties loadProperties( final String resource, final boolean required )
+        throws IOException
+    {
+        URL url = getClass().getResource( resource );
+        if ( url == null )
+        {
+            if ( required )
+            {
+                log.error( "Missing resource: {}", resource );
+                throw new IOException( "Missing resource: " + resource );
+            }
+            else
+            {
+                log.debug( "Missing optional resource: {}", resource );
+            }
+            return null;
+        }
+        else
+        {
+            return loadProperties( Resource.newResource( url ) );
+        }
     }
 
     protected void ensureTmpDirSanity()
