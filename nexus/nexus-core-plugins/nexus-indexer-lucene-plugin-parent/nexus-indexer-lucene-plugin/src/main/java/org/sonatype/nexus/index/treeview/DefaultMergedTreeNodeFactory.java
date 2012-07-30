@@ -86,50 +86,44 @@ public class DefaultMergedTreeNodeFactory
                                              TreeNode node )
     {
         DefaultMergedTreeNode mnode = (DefaultMergedTreeNode) super.decorateArtifactNode( tview, req, ai, path, node );
-
-        ResourceStoreRequest request = getResourceStoreRequest( path );
-
         // default it to not available
         mnode.setLocallyAvailable( false );
 
-        try
-        {
-            StorageItem item = getRepository().retrieveItem( request );
-
-            if ( item instanceof StorageFileItem )
-            {
-                mnode.setLocallyAvailable( true );
-
-                mnode.setArtifactTimestamp( item.getModified() );
-
-                mnode.setArtifactMd5Checksum( item.getRepositoryItemAttributes().get( DigestCalculatingInspector.DIGEST_MD5_KEY ) );
-
-                mnode.setArtifactSha1Checksum( item.getRepositoryItemAttributes().get( DigestCalculatingInspector.DIGEST_SHA1_KEY ) );
-
-                mnode.setInitiatorUserId( item.getRepositoryItemAttributes().get( AccessManager.REQUEST_USER ) );
-
-                mnode.setInitiatorIpAddress( item.getRepositoryItemAttributes().get( AccessManager.REQUEST_REMOTE_ADDRESS ) );
-
-                mnode.setArtifactOriginUrl( item.getRemoteUrl() );
-
-                if ( !StringUtils.isEmpty( mnode.getArtifactOriginUrl() ) )
-                {
-                    mnode.setArtifactOriginReason( "cached" );
-                }
-                else
-                {
-                    mnode.setArtifactOriginReason( "deployed" );
-                }
-            }
-        }
-        catch ( ItemNotFoundException e )
-        {
-            // mute it, probaly not available locally
-        }
-        catch ( Exception e )
-        {
-            // TODO: do something here?
-        }
+        // ResourceStoreRequest request = getResourceStoreRequest( path );
+        // try
+        // {
+        // StorageItem item = getRepository().retrieveItem( request );
+        //
+        // if ( item instanceof StorageFileItem )
+        // {
+        // mnode.setLocallyAvailable( true );
+        // mnode.setArtifactTimestamp( item.getModified() );
+        // mnode.setArtifactMd5Checksum( item.getRepositoryItemAttributes().get(
+        // DigestCalculatingInspector.DIGEST_MD5_KEY ) );
+        // mnode.setArtifactSha1Checksum( item.getRepositoryItemAttributes().get(
+        // DigestCalculatingInspector.DIGEST_SHA1_KEY ) );
+        // mnode.setInitiatorUserId( item.getRepositoryItemAttributes().get( AccessManager.REQUEST_USER ) );
+        // mnode.setInitiatorIpAddress( item.getRepositoryItemAttributes().get( AccessManager.REQUEST_REMOTE_ADDRESS )
+        // );
+        // mnode.setArtifactOriginUrl( item.getRemoteUrl() );
+        // if ( !StringUtils.isEmpty( mnode.getArtifactOriginUrl() ) )
+        // {
+        // mnode.setArtifactOriginReason( "cached" );
+        // }
+        // else
+        // {
+        // mnode.setArtifactOriginReason( "deployed" );
+        // }
+        // }
+        // }
+        // catch ( ItemNotFoundException e )
+        // {
+        // // mute it, probaly not available locally
+        // }
+        // catch ( Exception e )
+        // {
+        // // TODO: do something here?
+        // }
 
         return node;
     }
@@ -159,18 +153,18 @@ public class DefaultMergedTreeNodeFactory
 
     protected boolean isPathAvailable( String path )
     {
-        ResourceStoreRequest request = getResourceStoreRequest( path );
-
-        try
-        {
-            return getRepository().getLocalStorage().containsItem( getRepository(), request );
-        }
-        catch ( Exception e )
-        {
-            // for whatever reason, couldn't see item, so it's not cached locally we shall say
-        }
-
         return false;
+
+        // ResourceStoreRequest request = getResourceStoreRequest( path );
+        // try
+        // {
+        // return getRepository().getLocalStorage().containsItem( getRepository(), request );
+        // }
+        // catch ( Exception e )
+        // {
+        // // for whatever reason, couldn't see item, so it's not cached locally we shall say
+        // }
+        // return false;
     }
 
 }
