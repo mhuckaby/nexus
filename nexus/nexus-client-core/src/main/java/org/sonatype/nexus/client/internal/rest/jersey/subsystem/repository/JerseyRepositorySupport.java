@@ -61,7 +61,6 @@ public abstract class JerseyRepositorySupport<T extends Repository, S extends Re
     public synchronized T save()
     {
         overwriteSettingsWith( saveSettings() );
-        saveSettings();
         shouldCreate = false;
         return me();
     }
