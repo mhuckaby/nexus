@@ -29,7 +29,7 @@
   <name>Nexus Maven Indexer :: Plugin</name>
 
   <properties>
-    <maven.indexer.version>5.0.0-SNAPSHOT</maven.indexer.version>
+    <maven.indexer.version>5.0.0</maven.indexer.version>
     <truezip.version>7.0-rc1</truezip.version>
 
     <pluginName>Nexus : Core Plugins : MavenIndexer : Plugin</pluginName>
