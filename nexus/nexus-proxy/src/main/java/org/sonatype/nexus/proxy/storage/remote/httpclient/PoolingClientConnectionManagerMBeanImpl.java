@@ -13,11 +13,55 @@
 
 package org.sonatype.nexus.proxy.storage.remote.httpclient;
 
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+
+import javax.management.StandardMBean;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
- * ???
+ * Default {@link PoolingClientConnectionManagerMBean} implementation.
  *
  * @since 2.2
  */
 public class PoolingClientConnectionManagerMBeanImpl
+    extends StandardMBean
+    implements PoolingClientConnectionManagerMBean
 {
+    private final PoolingClientConnectionManager connectionManager;
+
+    public PoolingClientConnectionManagerMBeanImpl(final PoolingClientConnectionManager connectionManager) {
+        super(PoolingClientConnectionManagerMBean.class, false);
+        this.connectionManager = checkNotNull(connectionManager);
+    }
+
+    @Override
+    public int getMaxTotal() {
+        return connectionManager.getMaxTotal();
+    }
+
+    @Override
+    public int getDefaultMaxPerRoute() {
+        return connectionManager.getDefaultMaxPerRoute();
+    }
+
+    @Override
+    public int getTotalLeased() {
+        return connectionManager.getTotalStats().getLeased();
+    }
+
+    @Override
+    public int getTotalPending() {
+        return connectionManager.getTotalStats().getPending();
+    }
+
+    @Override
+    public int getTotalAvailable() {
+        return connectionManager.getTotalStats().getAvailable();
+    }
+
+    @Override
+    public int getTotalMax() {
+        return connectionManager.getTotalStats().getMax();
+    }
 }

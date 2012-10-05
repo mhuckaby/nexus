@@ -13,28 +13,14 @@
 
 package org.sonatype.nexus.proxy.storage.remote.httpclient;
 
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.client.HttpClient;
 
 /**
- * MBean which exposes details about a {@link PoolingClientConnectionManager}.
+ * MBean which exposes details about a {@link HttpClient}.
  *
  * @since 2.2
  */
 public interface HttpClientMBean
 {
-    int getMaxTotal();
-
-    int getDefaultMaxPerRoute();
-
-    // Total stats
-
-    int getLeased();
-
-    int getPending();
-
-    int getAvailable();
-
-    int getMax();
-
-    // Per-route stats?
+    // TODO
 }

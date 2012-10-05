@@ -407,15 +407,20 @@ public class HttpClientRemoteStorage
         // reset current http client, if exists
         HttpClientUtil.release( CTX_KEY, ctx );
 
+        HttpClientMBeanInstaller.uninstall(repository.getId());
+
+        HttpClient client;
         try
         {
             // and create a new one
-            HttpClientUtil.configure( CTX_KEY, ctx, getLogger() );
+            client = HttpClientUtil.configure( CTX_KEY, ctx, getLogger() );
         }
         catch ( IllegalStateException e )
         {
             throw new RemoteStorageException( "Could not create HTTPClient4x instance!", e );
         }
+
+        HttpClientMBeanInstaller.install(repository.getId(), client);
     }
 
     @Override

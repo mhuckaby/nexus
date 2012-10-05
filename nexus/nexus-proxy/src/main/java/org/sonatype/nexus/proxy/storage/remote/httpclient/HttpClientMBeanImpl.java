@@ -13,55 +13,26 @@
 
 package org.sonatype.nexus.proxy.storage.remote.httpclient;
 
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.client.HttpClient;
+import org.apache.http.params.HttpParams;
 
 import javax.management.StandardMBean;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Default {@link PoolingClientConnectionManagerMBean} implementation.
+ * Default {@link HttpClientMBean} implementation.
  *
  * @since 2.2
  */
 public class HttpClientMBeanImpl
     extends StandardMBean
-    implements PoolingClientConnectionManagerMBean
+    implements HttpClientMBean
 {
-    private final PoolingClientConnectionManager connectionManager;
+    private final HttpClient client;
 
-    public HttpClientMBeanImpl(final PoolingClientConnectionManager connectionManager) {
-        super(PoolingClientConnectionManagerMBean.class, false);
-        this.connectionManager = checkNotNull(connectionManager);
-    }
-
-    @Override
-    public int getMaxTotal() {
-        return connectionManager.getMaxTotal();
-    }
-
-    @Override
-    public int getDefaultMaxPerRoute() {
-        return connectionManager.getDefaultMaxPerRoute();
-    }
-
-    @Override
-    public int getLeased() {
-        return connectionManager.getTotalStats().getLeased();
-    }
-
-    @Override
-    public int getPending() {
-        return connectionManager.getTotalStats().getPending();
-    }
-
-    @Override
-    public int getAvailable() {
-        return connectionManager.getTotalStats().getAvailable();
-    }
-
-    @Override
-    public int getMax() {
-        return connectionManager.getTotalStats().getMax();
+    public HttpClientMBeanImpl(final HttpClient client) {
+        super(HttpClientMBean.class, false);
+        this.client = checkNotNull(client);
     }
 }

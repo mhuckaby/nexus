@@ -20,30 +20,26 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.Hashtable;
 
 /**
- * ???
+ * Installs MBeans for {@link HttpClient} components.
  *
  * @since 2.2
  */
 public class HttpClientMBeanInstaller
 {
+    public static final String DOMAIN = HttpClientMBeanInstaller.class.getPackage().getName();
+
     private static final Logger log = LoggerFactory.getLogger(HttpClientMBeanInstaller.class);
 
-    public static final String DOMAIN = "org.sonatype.nexus.proxy.storage.remote.httpclient";
-
-    private static ObjectName constructClientName(final String id) {
+    private static ObjectName clientName(final String repoId) {
         Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put("repoId", id);
+        properties.put("repoId", repoId);
         properties.put("type", "client");
         try {
             return ObjectName.getInstance(DOMAIN, properties);
@@ -53,10 +49,10 @@ public class HttpClientMBeanInstaller
         }
     }
 
-    private static ObjectName constructPoolName(final String id) {
+    private static ObjectName connectionManagerName(final String repoId) {
         Hashtable<String, String> properties = new Hashtable<String, String>();
-        properties.put("repoId", id);
-        properties.put("type", "pool");
+        properties.put("repoId", repoId);
+        properties.put("type", "connectionManager");
         try {
             return ObjectName.getInstance(DOMAIN, properties);
         }
@@ -66,20 +62,20 @@ public class HttpClientMBeanInstaller
     }
 
     public static void install(final String id, final HttpClient client) {
-        register(new HttpClientMBeanImpl(client), constructClientName(id));
+        register(new HttpClientMBeanImpl(client), clientName(id));
 
         ClientConnectionManager connectionManager = client.getConnectionManager();
         if (connectionManager instanceof PoolingClientConnectionManager) {
-            register(new PoolingClientConnectionManagerMBeanImpl((PoolingClientConnectionManager)connectionManager), constructPoolName(id));
+            register(new PoolingClientConnectionManagerMBeanImpl((PoolingClientConnectionManager)connectionManager), connectionManagerName(id));
         }
         else {
-            log.warn("No supported connection manager mbean for: {}", connectionManager.getClass().getName());
+            log.warn("No available connection manager mbean for: {}", connectionManager.getClass().getName());
         }
     }
 
     public static void uninstall(final String id) {
-        unregister(constructPoolName(id));
-        unregister(constructClientName(id));
+        unregister(connectionManagerName(id));
+        unregister(clientName(id));
     }
 
     private static MBeanServer getServer() {
@@ -94,7 +90,7 @@ public class HttpClientMBeanInstaller
             }
         }
         catch (Exception e) {
-            log.debug("Failed to unregister mbean: {}", objectName);
+            log.warn("Failed to unregister mbean: {}", objectName);
         }
     }
 
