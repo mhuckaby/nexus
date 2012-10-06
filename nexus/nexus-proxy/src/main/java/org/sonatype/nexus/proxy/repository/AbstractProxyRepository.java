@@ -34,6 +34,7 @@ import org.sonatype.nexus.proxy.LocalStorageException;
 import org.sonatype.nexus.proxy.RemoteAccessDeniedException;
 import org.sonatype.nexus.proxy.RemoteAccessException;
 import org.sonatype.nexus.proxy.RemoteStorageException;
+import org.sonatype.nexus.proxy.RemoteStorageTransportOverloadedException;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
 import org.sonatype.nexus.proxy.StorageException;
 import org.sonatype.nexus.proxy.access.Action;
@@ -1237,8 +1238,9 @@ public abstract class AbstractProxyRepository
                         catch ( StorageException ex )
                         {
                             if ( ex instanceof RemoteStorageException
-                            // NEXUS-4593 HTTP status 403 should not lead to autoblock
-                                && !( ex instanceof RemoteAccessDeniedException ) )
+                                // NEXUS-4593 HTTP status 403 should not lead to autoblock
+                                && !( ex instanceof RemoteAccessDeniedException )
+                                && !( ex instanceof RemoteStorageTransportOverloadedException ) )
                             {
                                 autoBlockProxying( ex );
                             }

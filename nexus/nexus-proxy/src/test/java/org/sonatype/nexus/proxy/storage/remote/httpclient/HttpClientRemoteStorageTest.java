@@ -14,31 +14,42 @@ package org.sonatype.nexus.proxy.storage.remote.httpclient;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import junit.framework.Assert;
 
-import java.net.URL;
-
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonatype.nexus.ApplicationStatusSource;
+import org.sonatype.nexus.configuration.application.ApplicationConfiguration;
+import org.sonatype.nexus.httpclient.Hc4Parameters;
+import org.sonatype.nexus.httpclient.Hc4ProviderImpl;
 import org.sonatype.nexus.mime.MimeSupport;
 import org.sonatype.nexus.proxy.RemoteStorageException;
+import org.sonatype.nexus.proxy.RemoteStorageTransportOverloadedException;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
+import org.sonatype.nexus.proxy.events.NexusStartedEvent;
+import org.sonatype.nexus.proxy.repository.DefaultRemoteConnectionSettings;
+import org.sonatype.nexus.proxy.repository.DefaultRemoteProxySettings;
 import org.sonatype.nexus.proxy.repository.ProxyRepository;
+import org.sonatype.nexus.proxy.storage.remote.DefaultRemoteStorageContext;
 import org.sonatype.nexus.proxy.storage.remote.RemoteItemNotFoundException;
-import org.sonatype.nexus.proxy.storage.remote.commonshttpclient.CommonsHttpClientRemoteStorage;
+import org.sonatype.nexus.proxy.storage.remote.RemoteStorageContext;
 import org.sonatype.nexus.proxy.storage.remote.http.QueryStringBuilder;
 import org.sonatype.nexus.proxy.utils.UserAgentBuilder;
+import org.sonatype.plexus.appevents.ApplicationEventMulticaster;
+import org.sonatype.sisu.goodies.common.Time;
 import org.sonatype.sisu.litmus.testsupport.TestSupport;
+import org.sonatype.tests.http.server.fluent.Behaviours;
+import org.sonatype.tests.http.server.fluent.Server;
 
 /**
  * {@link HttpClientRemoteStorage} UTs.
- *
+ * 
  * @since 2.2
  */
 public class HttpClientRemoteStorageTest
@@ -49,81 +60,59 @@ public class HttpClientRemoteStorageTest
     public ExpectedException thrown = ExpectedException.none();
 
     /**
-     * When retrieving an item with a path that ends with a "/" and without a query,
-     * an RemoteItemNotFoundException with a message that a collection could not be downloaded over HTTP should be
-     * thrown.
+     * When retrieving an item with a path that ends with a "/" and without a query, an RemoteItemNotFoundException with
+     * a message that a collection could not be downloaded over HTTP should be thrown.
      */
     @Test
     public void retrieveCollectionWhenPathEndsWithSlashAndNoQuery()
         throws Exception
     {
-        final HttpClientRemoteStorage underTest = new HttpClientRemoteStorage(
-            mock( UserAgentBuilder.class ),
-            mock( ApplicationStatusSource.class ),
-            mock( MimeSupport.class ),
-            mock( QueryStringBuilder.class )
-        );
+        final HttpClientRemoteStorage underTest =
+            new HttpClientRemoteStorage( mock( UserAgentBuilder.class ), mock( ApplicationStatusSource.class ),
+                mock( MimeSupport.class ), mock( QueryStringBuilder.class ), mock( HttpClientManager.class ) );
 
         thrown.expect( RemoteItemNotFoundException.class );
         thrown.expectMessage( "The remoteURL we got to looks like is a collection" );
 
-        underTest.retrieveItem(
-            mock( ProxyRepository.class ),
-            new ResourceStoreRequest( "bar/" ),
-            "http://foo.com"
-        );
+        underTest.retrieveItem( mock( ProxyRepository.class ), new ResourceStoreRequest( "bar/" ), "http://foo.com" );
     }
 
     /**
-     * When retrieving an item with a path that ends with a "/" and a query string that ends with a "/",
-     * an RemoteItemNotFoundException with a message that a collection could not be downloaded over HTTP should be
-     * thrown.
+     * When retrieving an item with a path that ends with a "/" and a query string that ends with a "/", an
+     * RemoteItemNotFoundException with a message that a collection could not be downloaded over HTTP should be thrown.
      */
     @Test
     public void retrieveCollectionWhenPathEndsWithSlashAndQueryEndsWithSlash()
         throws Exception
     {
-        final HttpClientRemoteStorage underTest = new HttpClientRemoteStorage(
-            mock( UserAgentBuilder.class ),
-            mock( ApplicationStatusSource.class ),
-            mock( MimeSupport.class ),
-            mock( QueryStringBuilder.class )
-        );
+        final HttpClientRemoteStorage underTest =
+            new HttpClientRemoteStorage( mock( UserAgentBuilder.class ), mock( ApplicationStatusSource.class ),
+                mock( MimeSupport.class ), mock( QueryStringBuilder.class ), mock( HttpClientManager.class ) );
 
         thrown.expect( RemoteItemNotFoundException.class );
         thrown.expectMessage( "The remoteURL we got to looks like is a collection" );
 
-        underTest.retrieveItem(
-            mock( ProxyRepository.class ),
-            new ResourceStoreRequest( "bar/?param=x/" ),
-            "http://foo.com"
-        );
+        underTest.retrieveItem( mock( ProxyRepository.class ), new ResourceStoreRequest( "bar/?param=x/" ),
+            "http://foo.com" );
     }
 
     /**
-     * When retrieving an item with a path that ends with a "/" and a query string that does not end with a "/",
-     * an RemoteItemNotFoundException with a message that a collection could not be downloaded over HTTP should be
-     * thrown.
+     * When retrieving an item with a path that ends with a "/" and a query string that does not end with a "/", an
+     * RemoteItemNotFoundException with a message that a collection could not be downloaded over HTTP should be thrown.
      */
     @Test
     public void retrieveCollectionWhenPathEndsWithSlashAndQueryDoesNotEndWithSlash()
         throws Exception
     {
-        final HttpClientRemoteStorage underTest = new HttpClientRemoteStorage(
-            mock( UserAgentBuilder.class ),
-            mock( ApplicationStatusSource.class ),
-            mock( MimeSupport.class ),
-            mock( QueryStringBuilder.class )
-        );
+        final HttpClientRemoteStorage underTest =
+            new HttpClientRemoteStorage( mock( UserAgentBuilder.class ), mock( ApplicationStatusSource.class ),
+                mock( MimeSupport.class ), mock( QueryStringBuilder.class ), mock( HttpClientManager.class ) );
 
         thrown.expect( RemoteItemNotFoundException.class );
         thrown.expectMessage( "The remoteURL we got to looks like is a collection" );
 
-        underTest.retrieveItem(
-            mock( ProxyRepository.class ),
-            new ResourceStoreRequest( "bar/?param=x" ),
-            "http://foo.com"
-        );
+        underTest.retrieveItem( mock( ProxyRepository.class ), new ResourceStoreRequest( "bar/?param=x" ),
+            "http://foo.com" );
     }
 
     /**
@@ -134,35 +123,171 @@ public class HttpClientRemoteStorageTest
     public void retrieveCollectionWhenPathDoesNotEndWithSlashAndQueryDoesNotEndWithSlash()
         throws Exception
     {
-        final HttpClientRemoteStorage underTest = new HttpClientRemoteStorage(
-            mock( UserAgentBuilder.class ),
-            mock( ApplicationStatusSource.class ),
-            mock( MimeSupport.class ),
-            mock( QueryStringBuilder.class )
-        )
-        {
-            @Override
-            HttpResponse executeRequest( final ProxyRepository repository, final ResourceStoreRequest request,
-                                         final HttpUriRequest httpRequest )
-                throws RemoteStorageException
+        final HttpClientRemoteStorage underTest =
+            new HttpClientRemoteStorage( mock( UserAgentBuilder.class ), mock( ApplicationStatusSource.class ),
+                mock( MimeSupport.class ), mock( QueryStringBuilder.class ), mock( HttpClientManager.class ) )
             {
-                final HttpResponse httpResponse = mock( HttpResponse.class );
-                final StatusLine statusLine = mock( StatusLine.class );
-                when( httpResponse.getStatusLine() ).thenReturn( statusLine );
-                when( statusLine.getStatusCode() ).thenReturn( 200 );
-                when( httpResponse.getEntity() ).thenReturn( mock( HttpEntity.class ) );
-                return httpResponse;
-            }
-        };
+                @Override
+                HttpResponse executeRequest( final ProxyRepository repository, final ResourceStoreRequest request,
+                                             final HttpUriRequest httpRequest )
+                    throws RemoteStorageException
+                {
+                    final HttpResponse httpResponse = mock( HttpResponse.class );
+                    final StatusLine statusLine = mock( StatusLine.class );
+                    when( httpResponse.getStatusLine() ).thenReturn( statusLine );
+                    when( statusLine.getStatusCode() ).thenReturn( 200 );
+                    when( httpResponse.getEntity() ).thenReturn( mock( HttpEntity.class ) );
+                    return httpResponse;
+                }
+            };
 
         final ProxyRepository repository = mock( ProxyRepository.class );
         when( repository.getId() ).thenReturn( "foo" );
 
-        underTest.retrieveItem(
-            repository,
-            new ResourceStoreRequest( "bar?param=x" ),
-            "http://foo.com"
-        );
+        underTest.retrieveItem( repository, new ResourceStoreRequest( "bar?param=x" ), "http://foo.com" );
     }
 
+    /**
+     * When pool is depleted, and underlying HttpClient4x cannot fulfil request due to
+     * {@link ConnectionPoolTimeoutException}, the {@link HttpClientRemoteStorage} should throw a new exception,
+     * instance of {@link RemoteStorageTransportOverloadedException} to mark to core that transport is overloaded.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void emitProperExceptionOnPoolDepletion()
+        throws Exception
+    {
+        // the foreplay: setting up
+        final RemoteStorageContext globalRemoteStorageContext = new DefaultRemoteStorageContext( null );
+        globalRemoteStorageContext.setRemoteConnectionSettings( new DefaultRemoteConnectionSettings() );
+        globalRemoteStorageContext.setRemoteProxySettings( new DefaultRemoteProxySettings() );
+        final ApplicationConfiguration applicationConfiguration = mock( ApplicationConfiguration.class );
+        when( applicationConfiguration.getGlobalRemoteStorageContext() ).thenReturn( globalRemoteStorageContext );
+        // custom Hc4Parameters instance, that gives us small pool size and pool timeout, and large connection timeouts
+        final Hc4Parameters hc4Parameters = new Hc4Parameters()
+        {
+            final int WAY_TOO_LONG = 86400000;
+
+            public int getConnectionTimeout( final RemoteStorageContext context )
+            {
+                return WAY_TOO_LONG;
+            }
+
+            @Override
+            public int getSoTimeout( final RemoteStorageContext context )
+            {
+                return WAY_TOO_LONG;
+            }
+
+            public int getConnectionPoolSize( final RemoteStorageContext context )
+            {
+                return 1;
+            }
+
+            @Override
+            public int getConnectionPoolMaxSize( RemoteStorageContext context )
+            {
+                return 1;
+            }
+
+            @Override
+            public long getConnectionPoolKeepalive( RemoteStorageContext context )
+            {
+                return WAY_TOO_LONG;
+            }
+
+            @Override
+            public long getConnectionPoolTimeout( RemoteStorageContext context )
+            {
+                return 100; // 100ms
+            }
+        };
+
+        // real provider and initializing it with NexusStarted event
+        final Hc4ProviderImpl hc4Provider =
+            new Hc4ProviderImpl( applicationConfiguration, hc4Parameters );
+
+        // the RRS instance we test
+        final HttpClientRemoteStorage underTest =
+            new HttpClientRemoteStorage( mock( UserAgentBuilder.class ), mock( ApplicationStatusSource.class ),
+                mock( MimeSupport.class ), mock( QueryStringBuilder.class ), new HttpClientManagerImpl( hc4Provider ) );
+
+        // a mock proxy repository with some mocks to make RRS work
+        final RemoteStorageContext proxyContext = new DefaultRemoteStorageContext( globalRemoteStorageContext );
+        final ProxyRepository repository = mock( ProxyRepository.class );
+        when( repository.getId() ).thenReturn( "foo" );
+        when( repository.getName() ).thenReturn( "foo" );
+        when( repository.getRemoteStorageContext() ).thenReturn( proxyContext );
+
+        // a mock remote server that will simply "hang" to occupy the request socket
+        final Server server =
+            Server.withPort( 0 ).serve( "/" ).withBehaviours( Behaviours.pause( Time.days( 1 ) ) ).start();
+        // the URL we will try to connect to
+        final String url = "http://foo.com:" + server.getPort() + "/foo/bar.jar";
+        // the requesting logic packed as Runnable
+        final Runnable request = new RequesterRunnable( underTest, repository, url );
+        try
+        {
+            // we fire 1st request as a Thread, this thread will be blocked as Server will simply "pause"
+            // this also means, that connection stays leased from pool, and since pool size is 1, we
+            // intentionally depleted the connection pool (reached max connection count)
+            final Thread blockedThread = new Thread( request );
+            blockedThread.start();
+
+            // give some time to thread above
+            Thread.sleep( 200 );
+
+            try
+            {
+                // in current thread we try to establish 2nd connection
+                // this here will need to fail, as connection pool is depleted
+                // ConnectionPoolTimeoutException should be thrown by HC4
+                // that RRS "repackages" into RemoteStorageTransportOverloadedException
+                request.run();
+
+                // fail if no exception
+                Assert.fail( "RemoteStorageTransportOverloadedException expected!" );
+            }
+            catch ( IllegalStateException e )
+            {
+                Assert.assertNotNull( "We except the cause be RemoteStorageTransportOverloadedException!", e.getCause() );
+                Assert.assertEquals( RemoteStorageTransportOverloadedException.class, e.getCause().getClass() );
+            }
+        }
+        finally
+        {
+            server.stop();
+        }
+    }
+
+    private static class RequesterRunnable
+        implements Runnable
+    {
+        private final HttpClientRemoteStorage underTest;
+
+        private final ProxyRepository repository;
+
+        private final String url;
+
+        private RequesterRunnable( HttpClientRemoteStorage underTest, ProxyRepository repository, String url )
+        {
+            this.underTest = underTest;
+            this.repository = repository;
+            this.url = url;
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                underTest.retrieveItem( repository, new ResourceStoreRequest( "foo/bar.jar" ), url );
+            }
+            catch ( Exception e )
+            {
+                throw new IllegalStateException( "Failed!", e );
+            }
+        }
+    }
 }

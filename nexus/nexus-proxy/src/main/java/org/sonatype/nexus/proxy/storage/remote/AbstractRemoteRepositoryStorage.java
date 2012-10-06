@@ -173,6 +173,25 @@ public abstract class AbstractRemoteRepositoryStorage
 
     // helper methods
 
+    /**
+     * Returns the UA builder to be used by specific subclass implementing the transport.
+     * 
+     * @return
+     * @since 2.2
+     */
+    protected UserAgentBuilder getUserAgentBuilder()
+    {
+        return userAgentBuilder;
+    }
+
+    /**
+     * Returns the formatted UA to be used by sublass transport.
+     * 
+     * @param ctx
+     * @param repository
+     * @return
+     * @deprecated use {@link #getUserAgentBuilder()} instead.
+     */
     @Deprecated
     protected String formatUserAgentString( RemoteStorageContext ctx, ProxyRepository repository )
     {
