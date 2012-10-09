@@ -106,7 +106,7 @@ public class Hc4ProviderImpl
         if ( sharedConnectionManager == null )
         {
             sharedConnectionManager =
-                createConnectionManager( applicationConfiguration.getGlobalRemoteStorageContext() );
+                createEvictingClientConnectionManager( applicationConfiguration.getGlobalRemoteStorageContext() );
         }
     }
 
@@ -165,9 +165,9 @@ public class Hc4ProviderImpl
         return httpClient;
     }
 
-    protected ClientConnectionManager createClientConnectionManager( final RemoteStorageContext context )
+    protected ClientConnectionManager createEvictingClientConnectionManager( final RemoteStorageContext context )
     {
-        return new EvictingClientConnectionManager( createConnectionManager( context ),
+        return new EvictingClientConnectionManager( createClientConnectionManager( context ),
             parameters.getConnectionPoolKeepalive( context ) );
     }
 
@@ -184,7 +184,7 @@ public class Hc4ProviderImpl
         return params;
     }
 
-    protected ClientConnectionManager createConnectionManager( final RemoteStorageContext context )
+    protected ClientConnectionManager createClientConnectionManager( final RemoteStorageContext context )
         throws IllegalStateException
     {
         final SchemeRegistry schemeRegistry = new SchemeRegistry();
