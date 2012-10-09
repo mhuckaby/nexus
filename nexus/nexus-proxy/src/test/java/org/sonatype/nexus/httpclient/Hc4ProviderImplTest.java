@@ -43,7 +43,7 @@ public class Hc4ProviderImplTest
 
     @Mock
     private ApplicationConfiguration applicationConfiguration;
-    
+
     @Mock
     private RemoteStorageContext globalRemoteStorageContext;
 
@@ -76,10 +76,10 @@ public class Hc4ProviderImplTest
         Assert.assertEquals( 1234, client.getParams().getIntParameter( HttpConnectionParams.SO_TIMEOUT, 0 ) );
         Assert.assertEquals(
             1234,
-            ( (PoolingClientConnectionManager) ( (ManagedByOtherClientConnectionManager) client.getConnectionManager() ).getDelegate() ).getMaxTotal() );
+            ( (PoolingClientConnectionManager) ( (EvictingClientConnectionManager) ( (ManagedByOtherClientConnectionManager) client.getConnectionManager() ).getDelegate() ).getDelegate() ).getMaxTotal() );
         Assert.assertEquals(
             1234,
-            ( (PoolingClientConnectionManager) ( (ManagedByOtherClientConnectionManager) client.getConnectionManager() ).getDelegate() ).getDefaultMaxPerRoute() );
+            ( (PoolingClientConnectionManager) ( (EvictingClientConnectionManager) ( (ManagedByOtherClientConnectionManager) client.getConnectionManager() ).getDelegate() ).getDelegate() ).getDefaultMaxPerRoute() );
     }
 
     @Test
@@ -102,7 +102,7 @@ public class Hc4ProviderImplTest
         Assert.assertEquals( 1234, client.getParams().getIntParameter( HttpConnectionParams.CONNECTION_TIMEOUT, 0 ) );
         Assert.assertEquals( 1234, client.getParams().getIntParameter( HttpConnectionParams.SO_TIMEOUT, 0 ) );
         final PoolingClientConnectionManager realConnMgr =
-            (PoolingClientConnectionManager) ( (ManagedByOtherClientConnectionManager) client.getConnectionManager() ).getDelegate();
+            (PoolingClientConnectionManager) ( (EvictingClientConnectionManager) ( (ManagedByOtherClientConnectionManager) client.getConnectionManager() ).getDelegate() ).getDelegate();
         Assert.assertEquals( 1234, realConnMgr.getMaxTotal() );
         Assert.assertEquals( 1234, realConnMgr.getDefaultMaxPerRoute() );
         client.getConnectionManager().shutdown();
