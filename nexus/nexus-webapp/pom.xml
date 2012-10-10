@@ -519,6 +519,34 @@
         <maven.yuicompressor.disableOptimizations>false</maven.yuicompressor.disableOptimizations>
       </properties>
     </profile>
+    <profile>
+      <id>jslint</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>net.alchim31.maven</groupId>
+            <artifactId>yuicompressor-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>jslint</id>
+                <goals>
+                  <goal>jslint</goal>
+                </goals>
+                <configuration>
+                  <failOnWarning>true</failOnWarning>
+
+                  <!-- jslint goal will include sources in src/main/webapp by default -->
+                  <!-- only include new js resources following the Nexus.* namespace -->
+                  <includes>
+                    <include>js/nexus/**/*.js</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
 </project>
