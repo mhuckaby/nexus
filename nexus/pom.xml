@@ -1624,12 +1624,15 @@
           <version>1.3.2</version>
           <configuration>
             <sourceDirectory>${project.basedir}/src/main</sourceDirectory>
+            <outputDirectory>${project.build.directory}/generated-sources/yuicompressor</outputDirectory>
+
             <includes>
               <include>js/**/*.js</include>
               <include>css/**/*.css</include>
             </includes>
+
             <nosuffix>true</nosuffix>
-            <outputDirectory>${project.build.directory}/generated-sources/yuicompressor</outputDirectory>
+            <insertNewLine>true</insertNewLine>
           </configuration>
           <executions>
             <execution>
