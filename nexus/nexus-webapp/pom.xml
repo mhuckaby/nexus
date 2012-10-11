@@ -37,6 +37,8 @@
 
     <plugin-repository.directory>${project.build.finalName}/WEB-INF/plugin-repository</plugin-repository.directory>
     <optional-plugins.directory>${project.build.finalName}/WEB-INF/optional-plugins</optional-plugins.directory>
+
+    <maven.yuicompressor.failOnWarning>true</maven.yuicompressor.failOnWarning>
   </properties>
 
   <dependencies>
@@ -377,6 +379,19 @@
               </aggregations>
             </configuration>
           </execution>
+          <execution>
+            <id>jslint</id>
+            <goals>
+              <goal>jslint</goal>
+            </goals>
+            <configuration>
+              <!-- jslint goal will include sources in src/main/webapp by default -->
+              <!-- only include new js resources following the Nexus.* namespace -->
+              <includes>
+                <include>js/nexus/**/*.js</include>
+              </includes>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -499,34 +514,4 @@
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>jslint</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>net.alchim31.maven</groupId>
-            <artifactId>yuicompressor-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>jslint</id>
-                <goals>
-                  <goal>jslint</goal>
-                </goals>
-                <configuration>
-                  <failOnWarning>true</failOnWarning>
-
-                  <!-- jslint goal will include sources in src/main/webapp by default -->
-                  <!-- only include new js resources following the Nexus.* namespace -->
-                  <includes>
-                    <include>js/nexus/**/*.js</include>
-                  </includes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
