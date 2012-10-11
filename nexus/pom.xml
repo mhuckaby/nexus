@@ -1715,6 +1715,7 @@
             </execution>
           </executions>
           <configuration>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <excludes combine.children="append">
               <exclude>**/Abstract*</exclude>
             </excludes>
